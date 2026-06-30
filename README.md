@@ -42,8 +42,13 @@ queries, not in the frontend code.
 ### 2.1 Unzip and enter the project
 
 ```bash
+# if you download .zip
 unzip neostore-vulnerable-lab.zip
-cd app
+cd neostore-vulnerable-lab
+
+# OR
+git clone https://github.com/Rashid-dewewe/neostore-vulnerable-lab.git
+cd neostore-vulnerable-lab
 ```
 
 ### 2.2 Create the database
