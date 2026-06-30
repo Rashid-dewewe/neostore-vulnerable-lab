@@ -14,36 +14,65 @@
 <main class="max-w-3xl mx-auto px-6 py-12">
   <h1 class="font-display text-2xl font-bold mb-6">Your orders</h1>
   <div id="order-list" class="flex flex-col gap-2"></div>
+  <div id="error-message" class="text-sm mt-4" style="color:var(--color-error)"></div>
 </main>
 
 <script src="/js/api.js"></script>
 <script>
+// First render the navigation
 renderNav();
-if (!requireLoginOrRedirect()) {}
+
+// Check if user is logged in
+if (!Auth.isLoggedIn()) {
+  document.getElementById('error-message').textContent = 'Please log in to view your orders.';
+  toast('Please log in first', 'error');
+  setTimeout(() => {
+    window.location.href = '/login.html';
+  }, 2000);
+} else {
+  loadOrders();
+}
 
 function statusBadge(s) {
-  const cls = s === 'delivered' || s === 'paid' ? 'badge-success' : s === 'cancelled' ? 'badge-warn' : 'badge-neutral';
+  const cls = s === 'delivered' || s === 'paid' ? 'badge-success' : 
+              s === 'cancelled' ? 'badge-warn' : 'badge-neutral';
   return `<span class="badge ${cls}">${s}</span>`;
 }
 
-async function load() {
-  const orders = await api('/orders');
-  document.getElementById('order-list').innerHTML = orders.length ? orders.map(o => `
-    <a href="javascript:void(0)" class="card p-4 flex justify-between items-center order-row" data-id="${o.id}">
-      <div>
-        <div class="font-mono text-sm">${o.order_number}</div>
-        <div class="text-xs" style="color:var(--color-on-surface-variant)">${new Date(o.created_at).toLocaleDateString()}</div>
+async function loadOrders() {
+  const container = document.getElementById('order-list');
+  const errorEl = document.getElementById('error-message');
+  
+  try {
+    const orders = await api('/orders');
+    console.log('Orders loaded:', orders);
+    
+    if (!orders || orders.length === 0) {
+      container.innerHTML = '<p style="color:var(--color-on-surface-variant)">No orders yet. Start shopping!</p>';
+      return;
+    }
+    
+    container.innerHTML = orders.map(o => `
+      <div class="card p-4 flex justify-between items-center">
+        <div>
+          <div class="font-mono text-sm">${o.order_number}</div>
+          <div class="text-xs" style="color:var(--color-on-surface-variant)">${new Date(o.created_at).toLocaleDateString()}</div>
+          <div class="text-xs" style="color:var(--color-on-surface-variant)">Subtotal: ${money(o.subtotal)}</div>
+        </div>
+        <div class="text-right">
+          ${statusBadge(o.status)}
+          <div class="font-medium mt-1">${money(o.total)}</div>
+          ${o.discount > 0 ? `<div class="text-xs text-green-600">-${money(o.discount)}</div>` : ''}
+        </div>
       </div>
-      ${statusBadge(o.status)}
-      <span class="font-medium">${money(o.total)}</span>
-    </a>`).join('') : '<p style="color:var(--color-on-surface-variant)">No orders yet.</p>';
-
-  document.querySelectorAll('.order-row').forEach(row => row.addEventListener('click', () => {
-    document.getElementById('lookup-id').value = row.dataset.id;
-    document.getElementById('lookup-btn').click();
-  }));
+    `).join('');
+    
+  } catch (err) {
+    console.error('Error loading orders:', err);
+    errorEl.textContent = 'Failed to load orders: ' + err.message;
+    container.innerHTML = '';
+  }
 }
-load();
 </script>
 </body>
 </html>
