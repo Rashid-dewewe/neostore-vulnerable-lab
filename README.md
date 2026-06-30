@@ -54,7 +54,14 @@ cd neostore-vulnerable-lab
 ### 2.2 Create the database
 
 ```bash
-mysql -u root -p < backend/db/schema.sql
+# 1. connect
+sudo mysql
+
+# create DB and user
+CREATE USER 'neostore'@'localhost' IDENTIFIED BY 'neostorepass';
+GRANT ALL PRIVILEGES ON neostore_lab.* TO 'neostore'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
 ```
 
 This creates the `neostore_lab` database and all tables (users, products,
@@ -64,18 +71,18 @@ carts, orders, coupons, etc.).
 
 ```bash
 cd backend
-cp .env.example .env
+touch .env
 ```
 
 Edit `.env` and set `DB_USER` / `DB_PASSWORD` to match your local MySQL
-login (defaults to `root` / `password`):
+login:
 
 ```ini
 PORT=4000
 DB_HOST=localhost
 DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=password
+DB_USER=neostore
+DB_PASSWORD=neostorepass
 DB_NAME=neostore_lab
 JWT_SECRET=neostore_secret_123   # intentionally weak — see vulnerability list
 JWT_EXPIRES_IN=7d
