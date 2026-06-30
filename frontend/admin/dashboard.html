@@ -54,6 +54,18 @@
         .tab-content.active { display: block; }
         .stat-value { font-size: 28px; font-weight: 700; color: #191c1e; }
         .stat-label { font-size: 12px; color: #434656; text-transform: uppercase; letter-spacing: 0.5px; }
+        .progress-bar {
+            height: 6px;
+            border-radius: 10px;
+            background: #e0e3e5;
+            overflow: hidden;
+        }
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 10px;
+            background: #0041c8;
+            transition: width 0.6s ease;
+        }
     </style>
 </head>
 <body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
@@ -109,8 +121,15 @@
     <main class="ml-[280px] min-h-screen">
         <!-- Header -->
         <header class="bg-white border-b border-[#e0e3e5] px-8 py-4 flex items-center justify-between sticky top-0 z-40">
-            <h2 id="page-title" class="text-2xl font-bold text-[#191c1e]">Dashboard</h2>
+            <div>
+                <h2 id="page-title" class="text-2xl font-bold text-[#191c1e]">System Overview</h2>
+                <p class="text-sm text-[#434656]">Real-time performance and management metrics.</p>
+            </div>
             <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-[#f2f4f6] px-4 py-2 rounded-lg border border-[#e0e3e5]">
+                    <span class="material-symbols-outlined text-[#434656] text-sm">calendar_today</span>
+                    <span class="text-sm text-[#434656]">Last 30 Days</span>
+                </div>
                 <div class="relative">
                     <span class="material-symbols-outlined text-[#434656] cursor-pointer">notifications</span>
                     <span class="absolute -top-1 -right-1 w-2 h-2 bg-[#ba1a1a] rounded-full"></span>
@@ -125,61 +144,168 @@
         <div class="p-8">
             <!-- Dashboard Tab -->
             <div id="tab-dashboard" class="tab-content active">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- KPI Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <div class="admin-card p-5">
-                        <div class="stat-label">Total Revenue</div>
-                        <div class="stat-value" id="total-revenue">$0</div>
-                        <div class="text-sm text-green-600 mt-1">↑ 12.5% from last month</div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="stat-label">Total Revenue</div>
+                                <div class="stat-value" id="total-revenue">$0</div>
+                            </div>
+                            <span class="text-green-600 text-sm font-medium flex items-center bg-green-50 px-2 py-1 rounded">
+                                <span class="material-symbols-outlined text-sm">arrow_upward</span> 12.5%
+                            </span>
+                        </div>
+                        <div class="text-sm text-[#434656] mt-1">vs. $1,141,850.00 last month</div>
                     </div>
                     <div class="admin-card p-5">
-                        <div class="stat-label">Total Orders</div>
-                        <div class="stat-value" id="total-orders">0</div>
-                        <div class="text-sm text-green-600 mt-1">↑ 8.2% from last month</div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="stat-label">Active Orders</div>
+                                <div class="stat-value" id="total-orders">0</div>
+                            </div>
+                            <span class="text-green-600 text-sm font-medium flex items-center bg-green-50 px-2 py-1 rounded">
+                                <span class="material-symbols-outlined text-sm">arrow_upward</span> 8.2%
+                            </span>
+                        </div>
+                        <div class="text-sm text-[#434656] mt-1">98.5% fulfillment rate</div>
                     </div>
                     <div class="admin-card p-5">
-                        <div class="stat-label">Total Customers</div>
-                        <div class="stat-value" id="total-customers">0</div>
-                        <div class="text-sm text-green-600 mt-1">↑ 5.4% from last month</div>
-                    </div>
-                    <div class="admin-card p-5">
-                        <div class="stat-label">Avg Order Value</div>
-                        <div class="stat-value" id="avg-order-value">$0</div>
-                        <div class="text-sm text-green-600 mt-1">↑ 3.1% from last month</div>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="stat-label">New Customers</div>
+                                <div class="stat-value" id="total-customers">0</div>
+                            </div>
+                            <span class="text-[#434656] text-sm font-medium flex items-center bg-[#f2f4f6] px-2 py-1 rounded">Stable</span>
+                        </div>
+                        <div class="text-sm text-[#434656] mt-1">Target: 4,000 monthly</div>
                     </div>
                 </div>
 
-                <!-- Recent Orders Table -->
-                <div class="admin-card overflow-hidden">
-                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6] flex justify-between">
-                        <h3 class="font-semibold">Recent Orders</h3>
-                        <span class="text-sm text-[#434656]">Last 30 days</span>
+                <!-- Recent Orders + Inventory Distribution -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- Recent Orders Table -->
+                    <div class="lg:col-span-2 admin-card overflow-hidden">
+                        <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6] flex justify-between items-center">
+                            <h3 class="font-semibold">Recent Transaction Log</h3>
+                            <div class="flex gap-2">
+                                <button class="p-1 hover:bg-[#e0e3e5] rounded">
+                                    <span class="material-symbols-outlined text-sm">filter_list</span>
+                                </button>
+                                <button class="p-1 hover:bg-[#e0e3e5] rounded">
+                                    <span class="material-symbols-outlined text-sm">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-[#f2f4f6]">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Order ID</th>
+                                        <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Customer</th>
+                                        <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Status</th>
+                                        <th class="px-4 py-3 text-right text-xs text-[#434656] uppercase">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-orders" class="divide-y divide-[#e0e3e5]">
+                                    <tr><td colspan="4" class="px-4 py-8 text-center text-[#434656]">Loading orders...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="p-3 border-t border-[#e0e3e5] flex justify-between text-sm text-[#434656]">
+                            <span>Showing 1-4 of 540 entries</span>
+                            <div class="flex gap-1">
+                                <button class="p-1 border rounded hover:bg-[#f2f4f6]">
+                                    <span class="material-symbols-outlined text-sm">keyboard_arrow_left</span>
+                                </button>
+                                <button class="p-1 border rounded hover:bg-[#f2f4f6]">
+                                    <span class="material-symbols-outlined text-sm">keyboard_arrow_right</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-[#f2f4f6]">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Order ID</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Customer</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Date</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Status</th>
-                                    <th class="px-4 py-3 text-right text-xs text-[#434656] uppercase">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-orders" class="divide-y divide-[#e0e3e5]">
-                                <tr><td colspan="5" class="px-4 py-8 text-center text-[#434656]">Loading orders...</td></tr>
-                            </tbody>
-                        </table>
+
+                    <!-- Inventory Distribution Sidebar -->
+                    <div class="admin-card p-5">
+                        <h3 class="font-semibold mb-4">Inventory Distribution</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-[#434656]">Electronics</span>
+                                    <span class="font-bold">64%</span>
+                                </div>
+                                <div class="progress-bar"><div class="fill" style="width:64%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-[#434656]">Home Goods</span>
+                                    <span class="font-bold">22%</span>
+                                </div>
+                                <div class="progress-bar"><div class="fill" style="width:22%"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-[#434656]">Apparel</span>
+                                    <span class="font-bold">14%</span>
+                                </div>
+                                <div class="progress-bar"><div class="fill" style="width:14%"></div></div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-[#e0e3e5]">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="text-sm text-[#434656]">Alert: Low Stock</div>
+                                    <div class="text-2xl font-bold">12 SKUs</div>
+                                </div>
+                                <button class="bg-[#ba1a1a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#93000a]">Restock</button>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-[#2d3133] text-white p-3 rounded-lg flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[#b6c4ff]">sync</span>
+                            <div>
+                                <div class="text-sm font-medium">Cloud Sync Complete</div>
+                                <div class="text-xs opacity-80">Inventory updated 2 mins ago.</div>
+                            </div>
+                            <button class="ml-auto"><span class="material-symbols-outlined text-sm">close</span></button>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Footer -->
+                <footer class="mt-8 pt-4 border-t border-[#e0e3e5] flex flex-col md:flex-row justify-between items-center text-sm text-[#434656]">
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-[#191c1e]">NeoStore Systems</span>
+                        <span class="w-1 h-1 bg-[#434656] rounded-full"></span>
+                        <span>v4.2.1-stable</span>
+                    </div>
+                    <div class="flex gap-4 mt-2 md:mt-0">
+                        <a href="#" class="hover:text-[#0041c8]">API Status: <span class="text-green-600">Operational</span></a>
+                        <a href="#" class="hover:text-[#0041c8]">Security Audit</a>
+                        <a href="#" class="hover:text-[#0041c8]">Support Ticket</a>
+                    </div>
+                    <p class="text-xs mt-2 md:mt-0">© 2024 NeoStore. Global Management Node: West-01</p>
+                </footer>
             </div>
 
             <!-- Inventory Tab -->
             <div id="tab-inventory" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="admin-card p-5"><div class="stat-label">Total SKU</div><div class="stat-value">1,284</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Low Stock Alerts</div><div class="stat-value text-[#ba1a1a]">24</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Inventory Value</div><div class="stat-value">$1.2M</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Restock Pending</div><div class="stat-value">08</div></div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Total SKU</div>
+                        <div class="stat-value">1,284</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Low Stock Alerts</div>
+                        <div class="stat-value text-[#ba1a1a]">24</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Inventory Value</div>
+                        <div class="stat-value">$1.2M</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Restock Pending</div>
+                        <div class="stat-value">08</div>
+                    </div>
                 </div>
                 
                 <div class="admin-card overflow-hidden">
@@ -205,15 +331,37 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="p-3 border-t border-[#e0e3e5] flex justify-between text-sm text-[#434656]">
+                        <span>Showing 1-10 of 1,284 products</span>
+                        <div class="flex gap-1">
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Prev</button>
+                            <button class="px-3 py-1 bg-[#0041c8] text-white rounded">1</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">2</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">3</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Next</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Orders Tab -->
             <div id="tab-orders" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="admin-card p-5"><div class="stat-label">Total Orders</div><div class="stat-value" id="orders-total">0</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Pending Fulfillment</div><div class="stat-value text-[#f39c12]">0</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Revenue This Month</div><div class="stat-value" id="orders-revenue">$0</div></div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value" id="orders-total">0</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 12% from last month</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Pending Fulfillment</div>
+                        <div class="stat-value" id="orders-pending">0</div>
+                        <div class="text-sm text-[#0041c8] mt-1 underline cursor-pointer">View all pending</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Revenue This Month</div>
+                        <div class="stat-value" id="orders-revenue">$0</div>
+                        <div class="text-sm text-[#434656] mt-1">Target: $300k</div>
+                    </div>
                 </div>
                 
                 <div class="admin-card overflow-hidden">
@@ -236,9 +384,9 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="p-4 border-t border-[#e0e3e5] flex justify-between text-sm text-[#434656]">
-                        <span>Showing 1-10 of 12,482 orders</span>
-                        <div class="flex gap-2">
+                    <div class="p-3 border-t border-[#e0e3e5] flex justify-between text-sm text-[#434656]">
+                        <span>Showing 1 to 5 of <span id="orders-count">0</span> orders</span>
+                        <div class="flex gap-1">
                             <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Prev</button>
                             <button class="px-3 py-1 bg-[#0041c8] text-white rounded">1</button>
                             <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">2</button>
@@ -251,19 +399,50 @@
 
             <!-- Customers Tab -->
             <div id="tab-customers" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Total Customers</div>
+                        <div class="stat-value" id="customers-total">0</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 12% growth</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Active This Month</div>
+                        <div class="stat-value">4,520</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 5% from last month</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">New Signups (7D)</div>
+                        <div class="stat-value">324</div>
+                        <div class="text-sm text-[#ba1a1a] mt-1">↓ 2% from last week</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Average LTV</div>
+                        <div class="stat-value">$1,240</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 8.4% increase</div>
+                    </div>
+                </div>
+
                 <div class="admin-card overflow-hidden">
-                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6]">
-                        <input type="text" placeholder="Search by name, email, or ID..." class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
+                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6] flex items-center justify-between">
+                        <input type="text" placeholder="Search by name, email, or ID..." class="flex-1 max-w-md px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
+                        <div class="flex gap-2">
+                            <button class="px-4 py-2 border border-[#e0e3e5] rounded-lg hover:bg-[#f2f4f6] flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">filter_list</span> Filter
+                            </button>
+                            <button class="px-4 py-2 bg-[#0041c8] text-white rounded-lg hover:bg-[#0055ff] flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">add</span> Add New
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead class="bg-[#f2f4f6]">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Customer</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Email</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Role</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Loyalty Points</th>
-                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Joined</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Join Date</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Orders</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Total Spent</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="customers-list" class="divide-y divide-[#e0e3e5]">
@@ -271,16 +450,42 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="p-3 border-t border-[#e0e3e5] flex justify-between text-sm text-[#434656]">
+                        <span>Showing 1-10 of <span id="customers-count">0</span> customers</span>
+                        <div class="flex gap-1">
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Prev</button>
+                            <button class="px-3 py-1 bg-[#0041c8] text-white rounded">1</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">2</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">3</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Next</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Analytics Tab -->
             <div id="tab-analytics" class="tab-content">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="admin-card p-5"><div class="stat-label">Revenue</div><div class="stat-value" id="analytics-revenue">$0</div><div class="text-sm text-green-600">↑ 8.2%</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Orders</div><div class="stat-value" id="analytics-orders">0</div><div class="text-sm text-green-600">↑ 2.1%</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Customers</div><div class="stat-value" id="analytics-customers">0</div><div class="text-sm text-green-600">↑ 5.4%</div></div>
-                    <div class="admin-card p-5"><div class="stat-label">Conversion Rate</div><div class="stat-value">2.7%</div><div class="text-sm text-green-600">↑ 0.3%</div></div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Revenue</div>
+                        <div class="stat-value" id="analytics-revenue">$0</div>
+                        <div class="text-sm text-green-600">↑ 8.2%</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Orders</div>
+                        <div class="stat-value" id="analytics-orders">0</div>
+                        <div class="text-sm text-green-600">↑ 2.1%</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Customers</div>
+                        <div class="stat-value" id="analytics-customers">0</div>
+                        <div class="text-sm text-green-600">↑ 5.4%</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Conversion Rate</div>
+                        <div class="stat-value">2.7%</div>
+                        <div class="text-sm text-green-600">↑ 0.3%</div>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -290,10 +495,13 @@
                             <div class="text-center text-[#434656] py-4">Loading...</div>
                         </div>
                     </div>
-                    <div class="admin-card p-5 flex items-center justify-center" style="min-height: 200px;">
-                        <div class="text-center text-[#434656]">
-                            <span class="material-symbols-outlined text-6xl">public</span>
-                            <p class="mt-2">Regional Sales Data</p>
+                    <div class="admin-card p-5">
+                        <h3 class="font-semibold mb-4">Regional Sales</h3>
+                        <div class="flex items-center justify-center" style="min-height: 200px;">
+                            <div class="text-center text-[#434656]">
+                                <span class="material-symbols-outlined text-6xl">public</span>
+                                <p class="mt-2">Regional Sales Data</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -341,20 +549,14 @@
         const user = Auth.getUser();
         console.log('Current user:', user);
 
-        // Check if user is admin
         if (!user || (user.role !== 'admin' && user.role !== 'support')) {
             toast('Access denied. Admin privileges required.', 'error');
-            setTimeout(() => {
-                window.location.href = '/index.html';
-            }, 2000);
+            setTimeout(() => window.location.href = '/index.html', 2000);
         } else {
-            // User is admin, load the dashboard
             document.getElementById('admin-name').textContent = user.full_name || 'Admin';
             document.getElementById('admin-avatar').textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'A';
             document.getElementById('settings-name').value = user.full_name || '';
             document.getElementById('settings-email').value = user.email || '';
-            
-            // Load all data
             loadDashboard();
         }
 
@@ -366,43 +568,46 @@
                 const tabName = this.dataset.tab;
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 document.getElementById(`tab-${tabName}`).classList.add('active');
-                document.getElementById('page-title').textContent = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+                
+                const titles = {
+                    dashboard: 'System Overview',
+                    inventory: 'Inventory Management',
+                    orders: 'Order Management',
+                    customers: 'Customer Management',
+                    analytics: 'Analytics',
+                    settings: 'Account Settings'
+                };
+                document.getElementById('page-title').textContent = titles[tabName] || tabName;
             });
         });
 
-        // Logout
         document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
 
-        // Load all data
         async function loadDashboard() {
             try {
-                // Load revenue stats
                 const revenue = await api('/admin/reports/revenue');
                 document.getElementById('total-revenue').textContent = money(revenue.totals?.revenue || 0);
                 document.getElementById('total-orders').textContent = revenue.totals?.order_count || 0;
-                document.getElementById('avg-order-value').textContent = money(revenue.totals?.avg_order_value || 0);
                 
-                // Load orders
                 const orders = await api('/admin/orders');
-                
-                // Recent orders (dashboard)
-                document.getElementById('recent-orders').innerHTML = orders.slice(0, 5).map(o => `
-                    <tr>
-                        <td class="px-4 py-3 font-mono text-sm">${o.order_number}</td>
-                        <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
-                        <td class="px-4 py-3 text-sm text-[#434656]">${new Date(o.created_at).toLocaleDateString()}</td>
-                        <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
-                        <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
-                    </tr>
-                `).join('');
-                
-                // Orders tab
+                const pending = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+                document.getElementById('orders-pending').textContent = pending;
                 document.getElementById('orders-total').textContent = orders.length;
                 document.getElementById('orders-revenue').textContent = money(orders.reduce((sum, o) => sum + Number(o.total), 0));
+                document.getElementById('orders-count').textContent = orders.length;
+                
+                document.getElementById('recent-orders').innerHTML = orders.slice(0, 4).map(o => `
+                    <tr class="hover:bg-[#f2f4f6]">
+                        <td class="px-4 py-3 font-mono text-sm font-medium text-[#0041c8]">#${o.order_number}</td>
+                        <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
+                        <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
+                        <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
+                    </tr>
+                `).join('');
                 
                 document.getElementById('orders-list').innerHTML = orders.slice(0, 10).map(o => `
-                    <tr>
-                        <td class="px-4 py-3 font-mono text-sm text-[#0041c8]">${o.order_number}</td>
+                    <tr class="hover:bg-[#f2f4f6]">
+                        <td class="px-4 py-3 font-mono text-sm font-medium text-[#0041c8]">#${o.order_number}</td>
                         <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
                         <td class="px-4 py-3 text-sm text-[#434656]">${new Date(o.created_at).toLocaleDateString()}</td>
                         <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
@@ -410,25 +615,33 @@
                     </tr>
                 `).join('');
                 
-                // Load customers
                 const customers = await api('/admin/customers');
                 document.getElementById('total-customers').textContent = customers.length;
-                document.getElementById('customers-list').innerHTML = customers.map(c => `
-                    <tr>
-                        <td class="px-4 py-3 font-medium">${c.full_name}</td>
-                        <td class="px-4 py-3">${c.email}</td>
-                        <td class="px-4 py-3"><span class="status-badge ${c.role}">${c.role}</span></td>
-                        <td class="px-4 py-3">${c.loyalty_points || 0}</td>
+                document.getElementById('customers-total').textContent = customers.length;
+                document.getElementById('customers-count').textContent = customers.length;
+                
+                document.getElementById('customers-list').innerHTML = customers.slice(0, 10).map(c => `
+                    <tr class="hover:bg-[#f2f4f6]">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-[#dae2fd] flex items-center justify-center text-sm font-bold text-[#0041c8]">${c.full_name.charAt(0)}</div>
+                                <div>
+                                    <div class="font-medium">${c.full_name}</div>
+                                    <div class="text-xs text-[#434656]">${c.email}</div>
+                                </div>
+                            </div>
+                        </td>
                         <td class="px-4 py-3 text-sm text-[#434656]">${new Date(c.created_at).toLocaleDateString()}</td>
+                        <td class="px-4 py-3">${c.loyalty_points || 0}</td>
+                        <td class="px-4 py-3 font-medium">${money(c.loyalty_points * 0.1 || 0)}</td>
+                        <td class="px-4 py-3"><span class="status-badge ${c.role === 'admin' ? 'delivered' : 'pending'}">${c.role === 'admin' ? 'Active' : 'Active'}</span></td>
                     </tr>
                 `).join('');
                 
-                // Analytics
                 document.getElementById('analytics-revenue').textContent = money(revenue.totals?.revenue || 0);
                 document.getElementById('analytics-orders').textContent = revenue.totals?.order_count || 0;
                 document.getElementById('analytics-customers').textContent = customers.length;
                 
-                // Top products
                 if (revenue.top_products && revenue.top_products.length) {
                     document.getElementById('top-products').innerHTML = revenue.top_products.slice(0, 5).map(p => `
                         <div class="flex justify-between items-center py-2 border-b border-[#e0e3e5]">
@@ -438,21 +651,37 @@
                     `).join('');
                 }
                 
-                // Load inventory
                 const products = await api('/admin/products');
                 document.getElementById('inventory-list').innerHTML = products.slice(0, 10).map(p => `
-                    <tr>
-                        <td class="px-4 py-3 font-medium">${p.name}</td>
+                    <tr class="hover:bg-[#f2f4f6]">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-[#f2f4f6] rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-[#434656]">inventory_2</span>
+                                </div>
+                                <div>
+                                    <div class="font-medium">${p.name}</div>
+                                    <div class="text-xs text-[#434656]">${p.category || 'Uncategorized'}</div>
+                                </div>
+                            </div>
+                        </td>
                         <td class="px-4 py-3 font-mono text-sm">${p.sku}</td>
-                        <td class="px-4 py-3">${p.category || 'Uncategorized'}</td>
-                        <td class="px-4 py-3 ${p.stock < 10 ? 'text-[#ba1a1a] font-bold' : ''}">${p.stock}</td>
+                        <td class="px-4 py-3"><span class="px-2 py-0.5 bg-[#dae2fd] text-[#0041c8] rounded text-xs">${p.category || 'General'}</span></td>
+                        <td class="px-4 py-3">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full ${p.stock < 10 ? 'bg-[#ba1a1a]' : p.stock < 50 ? 'bg-[#f39c12]' : 'bg-green-500'}"></span>
+                                    <span class="${p.stock < 10 ? 'text-[#ba1a1a] font-bold' : ''}">${p.stock}</span>
+                                </div>
+                            </div>
+                        </td>
                         <td class="px-4 py-3 text-right font-bold">${money(p.price)}</td>
                     </tr>
                 `).join('');
                 
             } catch (err) {
-                console.error('Error loading dashboard data:', err);
-                toast('Failed to load dashboard data: ' + err.message, 'error');
+                console.error('Error loading dashboard:', err);
+                toast('Failed to load dashboard data', 'error');
             }
         }
     </script>
