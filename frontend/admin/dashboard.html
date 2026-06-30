@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin | NeoStore</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<link href="/css/tokens.css" rel="stylesheet"/>
+</head>
+<body>
+<nav id="site-nav" class="border-b" style="border-color:var(--color-outline);background:var(--color-surface-container-lowest)"></nav>
+
+<div class="max-w-6xl mx-auto px-6 py-10">
+  <h1 class="font-display text-2xl font-bold mb-1">Admin Console</h1>
+  <p class="text-sm mb-2" style="color:var(--color-on-surface-variant)">NeoStore Retail Admin Ecosystem</p>
+  <p class="text-sm mb-6">
+    <span class="vuln-flag">VULN: every tab here is gated by requireStaff, which only blocks the literal 'customer' role and honors X-Debug-Role — see middleware/auth.js</span>
+  </p>
+
+  <div class="card p-4 mb-6 flex flex-wrap items-end gap-3">
+    <div>
+      <label class="text-xs font-mono block mb-1" style="color:var(--color-on-surface-variant)">X-Debug-Role override (debug header)</label>
+      <input id="debug-role" class="input w-48" placeholder="e.g. admin"/>
+    </div>
+    <button id="apply-debug-role" class="btn-secondary">Apply &amp; reload tab</button>
+    <span class="text-xs" style="color:var(--color-on-surface-variant)">Logged in as: <b id="whoami"></b></span>
+  </div>
+
+  <div class="flex gap-2 border-b mb-6" style="border-color:var(--color-outline)">
+    <button class="tab-btn px-4 py-2 text-sm font-medium" data-tab="customers">Customers</button>
+    <button class="tab-btn px-4 py-2 text-sm font-medium" data-tab="inventory">Inventory</button>
+    <button class="tab-btn px-4 py-2 text-sm font-medium" data-tab="orders">Orders</button>
+    <button class="tab-btn px-4 py-2 text-sm font-medium" data-tab="reports">Reports</button>
+    <button class="tab-btn px-4 py-2 text-sm font-medium" data-tab="roles">Roles</button>
+  </div>
+
+  <div id="tab-content"></div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+renderNav();
+if (!requireLoginOrRedirect()) {}
+document.getElementById('whoami').textContent = `${Auth.getUser().email} (${Auth.getUser().role})`;
+
+function debugHeaders() {
+  const role = document.getElementById('debug-role').value.trim();
+  return role ? { 'X-Debug-Role': role } : {};
+}
+
+async function tabCustomers() {
+  const rows = await api('/admin/customers', { headers: debugHeaders() });
+  return `
+    <p class="text-xs mb-3" style="color:var(--color-on-surface-variant)">Includes password_hash &amp; internal_notes via SELECT *.</p>
+    <div class="card overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="font-mono text-xs uppercase" style="background:var(--color-surface-container-low)">
+          <tr><th class="p-3 text-left">ID</th><th class="p-3 text-left">Name</th><th class="p-3 text-left">Email</th><th class="p-3 text-left">Role</th><th class="p-3 text-left">Password Hash</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(u => `<tr class="table-row border-t" style="border-color:var(--color-outline)">
+            <td class="p-3">${u.id}</td><td class="p-3">${u.full_name}</td><td class="p-3">${u.email}</td>
+            <td class="p-3"><span class="badge badge-neutral">${u.role}</span></td>
+            <td class="p-3 font-mono text-xs truncate max-w-[220px]">${u.password_hash}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function tabInventory() {
+  const rows = await api('/admin/products', { headers: debugHeaders() });
+  return `
+    <p class="text-xs mb-3" style="color:var(--color-on-surface-variant)">Exposes wholesale cost. Editing price/stock here only requires staff, not admin.</p>
+    <div class="card overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="font-mono text-xs uppercase" style="background:var(--color-surface-container-low)">
+          <tr><th class="p-3 text-left">SKU</th><th class="p-3 text-left">Name</th><th class="p-3 text-left">Price</th><th class="p-3 text-left">Cost</th><th class="p-3 text-left">Stock</th><th class="p-3 text-left"></th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(p => `<tr class="table-row border-t" style="border-color:var(--color-outline)" data-id="${p.id}">
+            <td class="p-3 font-mono text-xs">${p.sku}</td><td class="p-3">${p.name}</td>
+            <td class="p-3"><input class="input w-24 price-input" value="${p.price}"/></td>
+            <td class="p-3 font-mono text-xs">${money(p.cost)}</td>
+            <td class="p-3"><input class="input w-20 stock-input" value="${p.stock}"/></td>
+            <td class="p-3"><button class="btn-secondary save-product-btn" data-id="${p.id}">Save</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function tabOrders() {
+  const rows = await api('/admin/orders', { headers: debugHeaders() });
+  return `
+    <div class="card overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="font-mono text-xs uppercase" style="background:var(--color-surface-container-low)">
+          <tr><th class="p-3 text-left">Order #</th><th class="p-3 text-left">Customer</th><th class="p-3 text-left">Status</th><th class="p-3 text-left">Total</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(o => `<tr class="table-row border-t" style="border-color:var(--color-outline)">
+            <td class="p-3 font-mono text-xs">${o.order_number}</td><td class="p-3">${o.customer_name} &lt;${o.customer_email}&gt;</td>
+            <td class="p-3"><span class="badge badge-neutral">${o.status}</span></td><td class="p-3">${money(o.total)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+async function tabReports() {
+  const data = await api('/admin/reports/revenue', { headers: debugHeaders() });
+  return `
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="card p-4"><div class="text-xs font-mono" style="color:var(--color-on-surface-variant)">ORDERS</div><div class="text-2xl font-display font-bold">${data.totals.order_count}</div></div>
+      <div class="card p-4"><div class="text-xs font-mono" style="color:var(--color-on-surface-variant)">REVENUE</div><div class="text-2xl font-display font-bold">${money(data.totals.revenue)}</div></div>
+      <div class="card p-4"><div class="text-xs font-mono" style="color:var(--color-on-surface-variant)">AVG ORDER</div><div class="text-2xl font-display font-bold">${money(data.totals.avg_order_value)}</div></div>
+    </div>
+    <div class="card overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="font-mono text-xs uppercase" style="background:var(--color-surface-container-low)"><tr><th class="p-3 text-left">Product</th><th class="p-3 text-left">Units</th><th class="p-3 text-left">Revenue</th></tr></thead>
+        <tbody>${data.top_products.map(p => `<tr class="table-row border-t" style="border-color:var(--color-outline)"><td class="p-3">${p.name}</td><td class="p-3">${p.units_sold}</td><td class="p-3">${money(p.revenue)}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+}
+
+function tabRoles() {
+  return `
+    <p class="text-sm mb-3" style="color:var(--color-on-surface-variant)">Promote/demote any user by id.
+      <span class="vuln-flag block mt-2 w-fit">VULN: only requireStaff-gated, not strictly admin-only</span>
+    </p>
+    <div class="flex gap-2">
+      <input id="promote-id" class="input max-w-[140px]" placeholder="user id"/>
+      <select id="promote-role" class="input max-w-[160px]">
+        <option value="customer">customer</option>
+        <option value="support">support</option>
+        <option value="admin">admin</option>
+      </select>
+      <button id="promote-btn" class="btn-primary">Apply role</button>
+    </div>
+    <pre id="promote-result" class="text-xs font-mono mt-3 whitespace-pre-wrap"></pre>`;
+}
+
+const tabs = { customers: tabCustomers, inventory: tabInventory, orders: tabOrders, reports: tabReports, roles: tabRoles };
+let activeTab = 'customers';
+
+async function renderTab() {
+  const content = document.getElementById('tab-content');
+  content.innerHTML = '<p class="text-sm" style="color:var(--color-on-surface-variant)">Loading…</p>';
+  try {
+    content.innerHTML = await tabs[activeTab]();
+    if (activeTab === 'inventory') wireInventory();
+    if (activeTab === 'roles') wireRoles();
+  } catch (e) {
+    content.innerHTML = `<div class="card p-5" style="color:var(--color-error)">${e.message}</div>`;
+  }
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.style.borderBottom = b.dataset.tab === activeTab ? '2px solid var(--color-primary)' : 'none';
+    b.style.color = b.dataset.tab === activeTab ? 'var(--color-primary)' : 'var(--color-on-surface-variant)';
+  });
+}
+
+function wireInventory() {
+  document.querySelectorAll('.save-product-btn').forEach(btn => btn.addEventListener('click', async () => {
+    const row = btn.closest('tr');
+    const id = row.dataset.id;
+    const price = Number(row.querySelector('.price-input').value);
+    const stock = Number(row.querySelector('.stock-input').value);
+    try {
+      await api(`/admin/products/${id}`, { method: 'PUT', body: { price, stock }, headers: debugHeaders() });
+      toast('Product updated', 'success');
+    } catch (e) { toast(e.message, 'error'); }
+  }));
+}
+
+function wireRoles() {
+  document.getElementById('promote-btn').addEventListener('click', async () => {
+    try {
+      const data = await api(`/admin/users/${document.getElementById('promote-id').value}/promote`, {
+        method: 'POST',
+        body: { role: document.getElementById('promote-role').value },
+        headers: debugHeaders(),
+      });
+      document.getElementById('promote-result').textContent = JSON.stringify(data, null, 2);
+    } catch (e) { document.getElementById('promote-result').textContent = e.message; }
+  });
+}
+
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => { activeTab = b.dataset.tab; renderTab(); }));
+document.getElementById('apply-debug-role').addEventListener('click', renderTab);
+renderTab();
+</script>
+</body>
+</html>

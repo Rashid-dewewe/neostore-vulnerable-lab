@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Product | NeoStore</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
+<link href="/css/tokens.css" rel="stylesheet"/>
+</head>
+<body>
+<nav id="site-nav" class="border-b" style="border-color:var(--color-outline);background:var(--color-surface-container-lowest)"></nav>
+
+<main id="content" class="max-w-5xl mx-auto px-6 py-12"></main>
+
+<script src="/js/api.js"></script>
+<script>
+renderNav();
+const id = new URLSearchParams(location.search).get('id');
+
+async function load() {
+  try {
+    const p = await api(`/products/${id}`);
+    document.getElementById('content').innerHTML = `
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="card overflow-hidden aspect-square">
+          <img src="${p.image_url}" class="w-full h-full object-cover"/>
+        </div>
+        <div>
+          <span class="font-mono text-xs" style="color:var(--color-on-surface-variant)">${p.category || ''} · SKU ${p.sku}</span>
+          <h1 class="font-display text-3xl font-bold mt-2">${p.name}</h1>
+          <p class="mt-4 leading-relaxed" style="color:var(--color-on-surface-variant)">${p.description}</p>
+          <div class="mt-6 font-display text-3xl font-semibold">${money(p.price)}</div>
+          <div class="mt-1 text-sm" style="color:var(--color-on-surface-variant)">${p.stock} in stock</div>
+          <div class="mt-6 flex items-center gap-3">
+            <input id="qty" type="number" value="1" min="1" class="input w-24"/>
+            <button id="add-btn" class="btn-primary">Add to cart</button>
+          </div>
+        </div>
+      </div>`;
+    document.getElementById('add-btn').addEventListener('click', async () => {
+      if (!requireLoginOrRedirect()) return;
+      const quantity = Number(document.getElementById('qty').value);
+      try {
+        await api('/cart/items', { method: 'POST', body: { product_id: p.id, quantity } });
+        toast('Added to cart', 'success');
+      } catch (e) { toast(e.message, 'error'); }
+    });
+  } catch (e) {
+    document.getElementById('content').innerHTML = `<p>${e.message}</p>`;
+  }
+}
+load();
+</script>
+</body>
+</html>
