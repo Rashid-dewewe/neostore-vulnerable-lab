@@ -19,59 +19,68 @@
 
 <script src="/js/api.js"></script>
 <script>
-// First render the navigation
 renderNav();
 
-// Check if user is logged in
 if (!Auth.isLoggedIn()) {
-  document.getElementById('error-message').textContent = 'Please log in to view your orders.';
-  toast('Please log in first', 'error');
-  setTimeout(() => {
-    window.location.href = '/login.html';
-  }, 2000);
+    document.getElementById('error-message').textContent = 'Please log in to view your orders.';
+    toast('Please log in first', 'error');
+    setTimeout(() => window.location.href = '/login.html', 1500);
 } else {
-  loadOrders();
+    loadOrders();
 }
 
 function statusBadge(s) {
-  const cls = s === 'delivered' || s === 'paid' ? 'badge-success' : 
-              s === 'cancelled' ? 'badge-warn' : 'badge-neutral';
-  return `<span class="badge ${cls}">${s}</span>`;
+    const colors = {
+        delivered: 'bg-[#d4edda] text-[#155724]',
+        paid: 'bg-[#d1ecf1] text-[#0c5460]',
+        processing: 'bg-[#cce5ff] text-[#004085]',
+        pending: 'bg-[#fff3cd] text-[#856404]',
+        shipped: 'bg-[#d6d8db] text-[#383d41]',
+        cancelled: 'bg-[#f8d7da] text-[#721c24]'
+    };
+    return `<span class="px-3 py-1 rounded-full text-xs font-medium ${colors[s] || colors.pending}">${s}</span>`;
 }
 
 async function loadOrders() {
-  const container = document.getElementById('order-list');
-  const errorEl = document.getElementById('error-message');
-  
-  try {
-    const orders = await api('/orders');
-    console.log('Orders loaded:', orders);
+    const container = document.getElementById('order-list');
+    const errorEl = document.getElementById('error-message');
     
-    if (!orders || orders.length === 0) {
-      container.innerHTML = '<p style="color:var(--color-on-surface-variant)">No orders yet. Start shopping!</p>';
-      return;
+    try {
+        const orders = await Orders.getAll();
+        
+        if (!orders || orders.length === 0) {
+            container.innerHTML = `
+                <div class="bg-white border border-[#e0e3e5] rounded-xl p-12 text-center">
+                    <span class="material-symbols-outlined text-6xl text-[#434656]">receipt_long</span>
+                    <h3 class="font-['Geist'] text-xl font-bold mt-4">No orders yet</h3>
+                    <p class="text-[#434656] mt-2">Start shopping to see your orders here.</p>
+                    <a href="/index.html" class="inline-block mt-4 px-6 py-2 bg-[#0041c8] text-white rounded-lg hover:bg-[#0055ff] transition-colors">Start Shopping</a>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = orders.map(o => `
+            <div class="bg-white border border-[#e0e3e5] rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-mono text-sm font-medium text-[#0041c8]">${o.order_number}</span>
+                        ${statusBadge(o.status)}
+                    </div>
+                    <div class="text-sm text-[#434656] mt-1">${new Date(o.created_at).toLocaleDateString()}</div>
+                    <div class="text-sm text-[#434656]">Subtotal: ${money(o.subtotal)}</div>
+                </div>
+                <div class="text-right">
+                    <div class="font-['Geist'] text-xl font-bold text-[#0041c8]">${money(o.total)}</div>
+                    ${o.discount > 0 ? `<div class="text-xs text-green-600">-${money(o.discount)} discount</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (err) {
+        errorEl.textContent = 'Failed to load orders: ' + err.message;
+        toast(err.message, 'error');
     }
-    
-    container.innerHTML = orders.map(o => `
-      <div class="card p-4 flex justify-between items-center">
-        <div>
-          <div class="font-mono text-sm">${o.order_number}</div>
-          <div class="text-xs" style="color:var(--color-on-surface-variant)">${new Date(o.created_at).toLocaleDateString()}</div>
-          <div class="text-xs" style="color:var(--color-on-surface-variant)">Subtotal: ${money(o.subtotal)}</div>
-        </div>
-        <div class="text-right">
-          ${statusBadge(o.status)}
-          <div class="font-medium mt-1">${money(o.total)}</div>
-          ${o.discount > 0 ? `<div class="text-xs text-green-600">-${money(o.discount)}</div>` : ''}
-        </div>
-      </div>
-    `).join('');
-    
-  } catch (err) {
-    console.error('Error loading orders:', err);
-    errorEl.textContent = 'Failed to load orders: ' + err.message;
-    container.innerHTML = '';
-  }
 }
 </script>
 </body>

@@ -28,28 +28,37 @@
 <script src="/js/api.js"></script>
 <script>
 renderNav();
+
 document.getElementById('login-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  document.getElementById('error').textContent = '';
-  try {
-    const data = await api('/auth/login', {
-      method: 'POST',
-      body: { 
-        email: document.getElementById('email').value, 
-        password: document.getElementById('password').value 
-      }
-    });
-    Auth.setSession(data.token, data.user);
+    e.preventDefault();
+    document.getElementById('error').textContent = '';
     
-    // Redirect based on user role
-    if (data.user.role === 'admin' || data.user.role === 'support') {
-      window.location.href = '/admin/dashboard.html';
-    } else {
-      window.location.href = '/index.html';
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        const data = await api('/auth/login', {
+            method: 'POST',
+            body: { email, password }
+        });
+        
+        Auth.setSession(data.token, data.user);
+        toast('Welcome back, ' + data.user.full_name + '!', 'success');
+        
+        // Redirect based on role
+        if (data.user.role === 'admin' || data.user.role === 'support') {
+            setTimeout(() => {
+                window.location.href = '/admin/dashboard.html';
+            }, 500);
+        } else {
+            setTimeout(() => {
+                window.location.href = '/index.html';
+            }, 500);
+        }
+    } catch (err) {
+        document.getElementById('error').textContent = err.message;
+        toast(err.message, 'error');
     }
-  } catch (err) {
-    document.getElementById('error').textContent = err.message;
-  }
 });
 </script>
 </body>

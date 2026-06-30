@@ -19,75 +19,69 @@ renderNav();
 const id = new URLSearchParams(location.search).get('id');
 
 async function load() {
-  try {
-    const p = await api(`/products/${id}`);
-    document.getElementById('content').innerHTML = `
-      <div class="grid md:grid-cols-2 gap-10">
-        <div class="card overflow-hidden aspect-square">
-          <img src="${p.image_url}" class="w-full h-full object-cover"/>
-        </div>
-        <div>
-          <span class="font-mono text-xs" style="color:var(--color-on-surface-variant)">${p.category || ''} · SKU ${p.sku}</span>
-          <h1 class="font-display text-3xl font-bold mt-2">${p.name}</h1>
-          <p class="mt-4 leading-relaxed" style="color:var(--color-on-surface-variant)">${p.description}</p>
-          <div class="mt-6 font-display text-3xl font-semibold">${money(p.price)}</div>
-          <div class="mt-1 text-sm" style="color:var(--color-on-surface-variant)">${p.stock} in stock</div>
-          <div class="mt-6 flex items-center gap-3">
-            <input id="qty" type="number" value="1" min="1" max="${p.stock}" class="input w-24"/>
-            <button id="add-btn" class="btn-primary">Add to cart</button>
-          </div>
-          <div id="cart-message" class="mt-4 text-sm"></div>
-        </div>
-      </div>`;
-    
-    // Add event listener for the add to cart button
-    document.getElementById('add-btn').addEventListener('click', async function() {
-      const messageEl = document.getElementById('cart-message');
-      
-      // Check if user is logged in
-      if (!Auth.isLoggedIn()) {
-        messageEl.style.color = 'var(--color-error)';
-        messageEl.textContent = 'Please log in first! Redirecting...';
-        toast('Please log in first', 'error');
-        setTimeout(() => {
-          window.location.href = '/login.html';
-        }, 1500);
-        return;
-      }
-      
-      const quantity = parseInt(document.getElementById('qty').value);
-      if (quantity < 1 || quantity > p.stock) {
-        messageEl.style.color = 'var(--color-error)';
-        messageEl.textContent = `Please enter a quantity between 1 and ${p.stock}`;
-        return;
-      }
-      
-      try {
-        messageEl.textContent = 'Adding to cart...';
-        messageEl.style.color = 'var(--color-on-surface-variant)';
+    try {
+        const p = await Products.getById(id);
+        document.getElementById('content').innerHTML = `
+            <div class="grid md:grid-cols-2 gap-10">
+                <div class="card overflow-hidden aspect-square">
+                    <img src="${p.image_url}" class="w-full h-full object-cover"/>
+                </div>
+                <div>
+                    <span class="font-mono text-xs" style="color:var(--color-on-surface-variant)">${p.category || ''} · SKU ${p.sku}</span>
+                    <h1 class="font-['Geist'] text-3xl font-bold mt-2">${p.name}</h1>
+                    <p class="mt-4 leading-relaxed text-[#434656]">${p.description}</p>
+                    <div class="mt-6 font-['Geist'] text-3xl font-bold text-[#0041c8]">${money(p.price)}</div>
+                    <div class="mt-1 text-sm text-[#434656]">${p.stock} in stock</div>
+                    <div class="mt-6 flex items-center gap-3">
+                        <input id="qty" type="number" value="1" min="1" max="${p.stock}" class="w-24 px-3 py-2 border border-[#e0e3e5] rounded-lg focus:border-[#0041c8] focus:ring-2 focus:ring-[#0041c8] outline-none"/>
+                        <button id="add-btn" class="px-6 py-2.5 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">add_shopping_cart</span> Add to Cart
+                        </button>
+                    </div>
+                    <div id="cart-message" class="mt-4 text-sm"></div>
+                </div>
+            </div>`;
         
-        await api('/cart/items', { 
-          method: 'POST', 
-          body: { product_id: p.id, quantity: quantity } 
+        // Add to cart handler
+        document.getElementById('add-btn').addEventListener('click', async function() {
+            const messageEl = document.getElementById('cart-message');
+            
+            if (!Auth.isLoggedIn()) {
+                messageEl.style.color = '#ba1a1a';
+                messageEl.textContent = 'Please log in first!';
+                toast('Please log in first', 'error');
+                setTimeout(() => window.location.href = '/login.html', 1000);
+                return;
+            }
+            
+            const quantity = parseInt(document.getElementById('qty').value);
+            if (quantity < 1 || quantity > p.stock) {
+                messageEl.style.color = '#ba1a1a';
+                messageEl.textContent = `Please enter a quantity between 1 and ${p.stock}`;
+                return;
+            }
+            
+            try {
+                await Cart.add(p.id, quantity);
+                messageEl.style.color = '#1a7f37';
+                messageEl.textContent = `✓ Added ${quantity} item(s) to cart!`;
+                toast('Added to cart successfully!', 'success');
+                await window.updateCartCount();
+                document.getElementById('qty').value = 1;
+            } catch (e) {
+                messageEl.style.color = '#ba1a1a';
+                messageEl.textContent = 'Error: ' + e.message;
+                toast(e.message, 'error');
+            }
         });
         
-        messageEl.style.color = 'var(--color-success)';
-        messageEl.textContent = `✓ Added ${quantity} item(s) to cart!`;
-        toast('Added to cart successfully!', 'success');
+        // Update cart count
+        await window.updateCartCount();
         
-        // Update the quantity input to show it was added
-        document.getElementById('qty').value = 1;
-        
-      } catch (e) {
-        messageEl.style.color = 'var(--color-error)';
-        messageEl.textContent = 'Error: ' + e.message;
-        toast(e.message, 'error');
-      }
-    });
-    
-  } catch (e) {
-    document.getElementById('content').innerHTML = `<p style="color:var(--color-error)">Error loading product: ${e.message}</p>`;
-  }
+    } catch (e) {
+        document.getElementById('content').innerHTML = `<p class="text-[#ba1a1a]">Error loading product: ${e.message}</p>`;
+        toast('Failed to load product', 'error');
+    }
 }
 
 load();

@@ -543,147 +543,154 @@
         </div>
     </main>
 
-    <script src="/js/api.js"></script>
-    <script>
-        // Check admin access
-        const user = Auth.getUser();
-        console.log('Current user:', user);
+<script src="/js/api.js"></script>
+<script>
+    // Check admin access
+    const user = Auth.getUser();
+    
+    if (!user || (user.role !== 'admin' && user.role !== 'support')) {
+        toast('Access denied. Admin privileges required.', 'error');
+        setTimeout(() => window.location.href = '/index.html', 2000);
+    } else {
+        document.getElementById('admin-name').textContent = user.full_name || 'Admin';
+        document.getElementById('admin-avatar').textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'A';
+        document.getElementById('settings-name').value = user.full_name || '';
+        document.getElementById('settings-email').value = user.email || '';
+        loadDashboard();
+    }
 
-        if (!user || (user.role !== 'admin' && user.role !== 'support')) {
-            toast('Access denied. Admin privileges required.', 'error');
-            setTimeout(() => window.location.href = '/index.html', 2000);
-        } else {
-            document.getElementById('admin-name').textContent = user.full_name || 'Admin';
-            document.getElementById('admin-avatar').textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'A';
-            document.getElementById('settings-name').value = user.full_name || '';
-            document.getElementById('settings-email').value = user.email || '';
-            loadDashboard();
-        }
-
-        // Navigation
-        document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
-                this.classList.add('active');
-                const tabName = this.dataset.tab;
-                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                document.getElementById(`tab-${tabName}`).classList.add('active');
-                
-                const titles = {
-                    dashboard: 'System Overview',
-                    inventory: 'Inventory Management',
-                    orders: 'Order Management',
-                    customers: 'Customer Management',
-                    analytics: 'Analytics',
-                    settings: 'Account Settings'
-                };
-                document.getElementById('page-title').textContent = titles[tabName] || tabName;
-            });
+    // Navigation
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
+            this.classList.add('active');
+            const tabName = this.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            const titles = {
+                dashboard: 'System Overview',
+                inventory: 'Inventory Management',
+                orders: 'Order Management',
+                customers: 'Customer Management',
+                analytics: 'Analytics',
+                settings: 'Account Settings'
+            };
+            document.getElementById('page-title').textContent = titles[tabName] || tabName;
         });
+    });
 
-        document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
+    document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
 
-        async function loadDashboard() {
-            try {
-                const revenue = await api('/admin/reports/revenue');
-                document.getElementById('total-revenue').textContent = money(revenue.totals?.revenue || 0);
-                document.getElementById('total-orders').textContent = revenue.totals?.order_count || 0;
-                
-                const orders = await api('/admin/orders');
-                const pending = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
-                document.getElementById('orders-pending').textContent = pending;
-                document.getElementById('orders-total').textContent = orders.length;
-                document.getElementById('orders-revenue').textContent = money(orders.reduce((sum, o) => sum + Number(o.total), 0));
-                document.getElementById('orders-count').textContent = orders.length;
-                
-                document.getElementById('recent-orders').innerHTML = orders.slice(0, 4).map(o => `
-                    <tr class="hover:bg-[#f2f4f6]">
-                        <td class="px-4 py-3 font-mono text-sm font-medium text-[#0041c8]">#${o.order_number}</td>
-                        <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
-                        <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
-                        <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
-                    </tr>
-                `).join('');
-                
-                document.getElementById('orders-list').innerHTML = orders.slice(0, 10).map(o => `
-                    <tr class="hover:bg-[#f2f4f6]">
-                        <td class="px-4 py-3 font-mono text-sm font-medium text-[#0041c8]">#${o.order_number}</td>
-                        <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
-                        <td class="px-4 py-3 text-sm text-[#434656]">${new Date(o.created_at).toLocaleDateString()}</td>
-                        <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
-                        <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
-                    </tr>
-                `).join('');
-                
-                const customers = await api('/admin/customers');
-                document.getElementById('total-customers').textContent = customers.length;
-                document.getElementById('customers-total').textContent = customers.length;
-                document.getElementById('customers-count').textContent = customers.length;
-                
-                document.getElementById('customers-list').innerHTML = customers.slice(0, 10).map(c => `
-                    <tr class="hover:bg-[#f2f4f6]">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-[#dae2fd] flex items-center justify-center text-sm font-bold text-[#0041c8]">${c.full_name.charAt(0)}</div>
-                                <div>
-                                    <div class="font-medium">${c.full_name}</div>
-                                    <div class="text-xs text-[#434656]">${c.email}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 text-sm text-[#434656]">${new Date(c.created_at).toLocaleDateString()}</td>
-                        <td class="px-4 py-3">${c.loyalty_points || 0}</td>
-                        <td class="px-4 py-3 font-medium">${money(c.loyalty_points * 0.1 || 0)}</td>
-                        <td class="px-4 py-3"><span class="status-badge ${c.role === 'admin' ? 'delivered' : 'pending'}">${c.role === 'admin' ? 'Active' : 'Active'}</span></td>
-                    </tr>
-                `).join('');
-                
-                document.getElementById('analytics-revenue').textContent = money(revenue.totals?.revenue || 0);
-                document.getElementById('analytics-orders').textContent = revenue.totals?.order_count || 0;
-                document.getElementById('analytics-customers').textContent = customers.length;
-                
-                if (revenue.top_products && revenue.top_products.length) {
-                    document.getElementById('top-products').innerHTML = revenue.top_products.slice(0, 5).map(p => `
-                        <div class="flex justify-between items-center py-2 border-b border-[#e0e3e5]">
-                            <span>${p.name}</span>
-                            <span class="font-medium">${money(p.revenue)}</span>
-                        </div>
-                    `).join('');
-                }
-                
-                const products = await api('/admin/products');
-                document.getElementById('inventory-list').innerHTML = products.slice(0, 10).map(p => `
-                    <tr class="hover:bg-[#f2f4f6]">
-                        <td class="px-4 py-3">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 bg-[#f2f4f6] rounded-lg flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-[#434656]">inventory_2</span>
-                                </div>
-                                <div>
-                                    <div class="font-medium">${p.name}</div>
-                                    <div class="text-xs text-[#434656]">${p.category || 'Uncategorized'}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-4 py-3 font-mono text-sm">${p.sku}</td>
-                        <td class="px-4 py-3"><span class="px-2 py-0.5 bg-[#dae2fd] text-[#0041c8] rounded text-xs">${p.category || 'General'}</span></td>
-                        <td class="px-4 py-3">
+    async function loadDashboard() {
+        try {
+            // Load revenue stats
+            const revenue = await Admin.getRevenue();
+            document.getElementById('total-revenue').textContent = money(revenue.totals?.revenue || 0);
+            document.getElementById('total-orders').textContent = revenue.totals?.order_count || 0;
+            
+            // Load orders
+            const orders = await Admin.getOrders();
+            const pending = orders.filter(o => o.status === 'pending' || o.status === 'processing').length;
+            document.getElementById('orders-pending').textContent = pending;
+            document.getElementById('orders-total').textContent = orders.length;
+            document.getElementById('orders-revenue').textContent = money(orders.reduce((sum, o) => sum + Number(o.total), 0));
+            document.getElementById('orders-count').textContent = orders.length;
+            
+            // Recent orders (dashboard)
+            document.getElementById('recent-orders').innerHTML = orders.slice(0, 4).map(o => `
+                <tr class="hover:bg-[#f2f4f6]">
+                    <td class="px-4 py-3 font-mono text-sm font-medium text-[#0041c8]">#${o.order_number}</td>
+                    <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
+                    <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
+                    <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
+                </tr>
+            `).join('');
+            
+            // Orders list
+            document.getElementById('orders-list').innerHTML = orders.slice(0, 10).map(o => `
+                <tr class="hover:bg-[#f2f4f6]">
+                    <td class="px-4 py-3 font-mono text-sm font-medium text-[#0041c8]">#${o.order_number}</td>
+                    <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
+                    <td class="px-4 py-3 text-sm text-[#434656]">${new Date(o.created_at).toLocaleDateString()}</td>
+                    <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
+                    <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
+                </tr>
+            `).join('');
+            
+            // Load customers
+            const customers = await Admin.getCustomers();
+            document.getElementById('total-customers').textContent = customers.length;
+            document.getElementById('customers-total').textContent = customers.length;
+            document.getElementById('customers-count').textContent = customers.length;
+            
+            document.getElementById('customers-list').innerHTML = customers.slice(0, 10).map(c => `
+                <tr class="hover:bg-[#f2f4f6]">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-[#dae2fd] flex items-center justify-center text-sm font-bold text-[#0041c8]">${c.full_name.charAt(0)}</div>
                             <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full ${p.stock < 10 ? 'bg-[#ba1a1a]' : p.stock < 50 ? 'bg-[#f39c12]' : 'bg-green-500'}"></span>
-                                    <span class="${p.stock < 10 ? 'text-[#ba1a1a] font-bold' : ''}">${p.stock}</span>
-                                </div>
+                                <div class="font-medium">${c.full_name}</div>
+                                <div class="text-xs text-[#434656]">${c.email}</div>
                             </div>
-                        </td>
-                        <td class="px-4 py-3 text-right font-bold">${money(p.price)}</td>
-                    </tr>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-[#434656]">${new Date(c.created_at).toLocaleDateString()}</td>
+                    <td class="px-4 py-3">${c.loyalty_points || 0}</td>
+                    <td class="px-4 py-3 font-medium">${money(c.loyalty_points * 0.1 || 0)}</td>
+                    <td class="px-4 py-3"><span class="status-badge ${c.role === 'admin' ? 'delivered' : 'pending'}">${c.role === 'admin' ? 'Active' : 'Active'}</span></td>
+                </tr>
+            `).join('');
+            
+            // Analytics
+            document.getElementById('analytics-revenue').textContent = money(revenue.totals?.revenue || 0);
+            document.getElementById('analytics-orders').textContent = revenue.totals?.order_count || 0;
+            document.getElementById('analytics-customers').textContent = customers.length;
+            
+            // Top products
+            if (revenue.top_products && revenue.top_products.length) {
+                document.getElementById('top-products').innerHTML = revenue.top_products.slice(0, 5).map(p => `
+                    <div class="flex justify-between items-center py-2 border-b border-[#e0e3e5]">
+                        <span>${p.name}</span>
+                        <span class="font-medium">${money(p.revenue)}</span>
+                    </div>
                 `).join('');
-                
-            } catch (err) {
-                console.error('Error loading dashboard:', err);
-                toast('Failed to load dashboard data', 'error');
             }
+            
+            // Load inventory
+            const products = await Admin.getProducts();
+            document.getElementById('inventory-list').innerHTML = products.slice(0, 10).map(p => `
+                <tr class="hover:bg-[#f2f4f6]">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-[#f2f4f6] rounded-lg flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[#434656]">inventory_2</span>
+                            </div>
+                            <div>
+                                <div class="font-medium">${p.name}</div>
+                                <div class="text-xs text-[#434656]">${p.category || 'Uncategorized'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-sm">${p.sku}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 bg-[#dae2fd] text-[#0041c8] rounded text-xs">${p.category || 'General'}</span></td>
+                    <td class="px-4 py-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full ${p.stock < 10 ? 'bg-[#ba1a1a]' : p.stock < 50 ? 'bg-[#f39c12]' : 'bg-green-500'}"></span>
+                                <span class="${p.stock < 10 ? 'text-[#ba1a1a] font-bold' : ''}">${p.stock}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold">${money(p.price)}</td>
+                </tr>
+            `).join('');
+            
+        } catch (err) {
+            console.error('Error loading dashboard:', err);
+            toast('Failed to load dashboard data: ' + err.message, 'error');
         }
-    </script>
+    }
+</script>
 </body>
 </html>

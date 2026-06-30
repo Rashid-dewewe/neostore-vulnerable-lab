@@ -19,68 +19,62 @@
 
 <script src="/js/api.js"></script>
 <script>
-// First render the navigation
 renderNav();
 
-// Check if user is logged in
 if (!Auth.isLoggedIn()) {
-  document.getElementById('error-message').textContent = 'Please log in to view your profile.';
-  toast('Please log in first', 'error');
-  setTimeout(() => {
-    window.location.href = '/login.html';
-  }, 2000);
+    document.getElementById('error-message').textContent = 'Please log in to view your profile.';
+    toast('Please log in first', 'error');
+    setTimeout(() => window.location.href = '/login.html', 1500);
 } else {
-  loadProfile();
+    loadProfile();
 }
 
 async function loadProfile() {
-  const user = Auth.getUser();
-  const card = document.getElementById('profile-card');
-  const errorEl = document.getElementById('error-message');
-  
-  if (!user || !user.id) {
-    errorEl.textContent = 'User data not found. Please log in again.';
-    return;
-  }
-  
-  try {
-    console.log('Loading profile for user:', user.id);
-    const me = await api(`/users/${user.id}`);
-    console.log('Profile data:', me);
+    const user = Auth.getUser();
+    const card = document.getElementById('profile-card');
+    const errorEl = document.getElementById('error-message');
     
-    if (!me) {
-      errorEl.textContent = 'No profile data found.';
-      return;
+    if (!user || !user.id) {
+        errorEl.textContent = 'User data not found. Please log in again.';
+        return;
     }
     
-    card.innerHTML = `
-      <div class="flex justify-between py-2 border-b">
-        <span class="text-sm" style="color:var(--color-on-surface-variant)">Name</span>
-        <span class="font-medium">${me.full_name || 'N/A'}</span>
-      </div>
-      <div class="flex justify-between py-2 border-b">
-        <span class="text-sm" style="color:var(--color-on-surface-variant)">Email</span>
-        <span class="font-mono text-sm">${me.email || 'N/A'}</span>
-      </div>
-      <div class="flex justify-between py-2 border-b">
-        <span class="text-sm" style="color:var(--color-on-surface-variant)">Role</span>
-        <span class="badge ${me.role === 'admin' ? 'badge-warn' : me.role === 'support' ? 'badge-success' : 'badge-neutral'}">${me.role || 'N/A'}</span>
-      </div>
-      <div class="flex justify-between py-2 border-b">
-        <span class="text-sm" style="color:var(--color-on-surface-variant)">Phone</span>
-        <span class="font-mono text-sm">${me.phone || 'Not provided'}</span>
-      </div>
-      <div class="flex justify-between py-2">
-        <span class="text-sm" style="color:var(--color-on-surface-variant)">Loyalty Points</span>
-        <span class="font-mono text-sm font-bold">${me.loyalty_points || 0}</span>
-      </div>
-    `;
-    
-  } catch (err) {
-    console.error('Error loading profile:', err);
-    errorEl.textContent = 'Failed to load profile: ' + err.message;
-    card.innerHTML = '<p class="text-sm" style="color:var(--color-on-surface-variant)">Unable to load profile data.</p>';
-  }
+    try {
+        const me = await api(`/users/${user.id}`);
+        
+        card.innerHTML = `
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-full bg-[#0041c8] text-white flex items-center justify-center text-2xl font-bold">${me.full_name.charAt(0)}</div>
+                <div>
+                    <h3 class="font-['Geist'] text-xl font-bold">${me.full_name}</h3>
+                    <p class="text-[#434656]">${me.email}</p>
+                    <span class="inline-block px-3 py-0.5 bg-[#dce1ff] text-[#0041c8] rounded-full text-xs font-medium mt-1">${me.role}</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="border border-[#e0e3e5] rounded-lg p-4">
+                    <p class="text-xs text-[#434656] uppercase tracking-wider">Phone</p>
+                    <p class="font-medium">${me.phone || 'Not provided'}</p>
+                </div>
+                <div class="border border-[#e0e3e5] rounded-lg p-4">
+                    <p class="text-xs text-[#434656] uppercase tracking-wider">Loyalty Points</p>
+                    <p class="font-['Geist'] text-2xl font-bold text-[#0041c8]">${me.loyalty_points || 0}</p>
+                </div>
+                <div class="border border-[#e0e3e5] rounded-lg p-4">
+                    <p class="text-xs text-[#434656] uppercase tracking-wider">Member Since</p>
+                    <p class="font-medium">${new Date(me.created_at).toLocaleDateString()}</p>
+                </div>
+                <div class="border border-[#e0e3e5] rounded-lg p-4">
+                    <p class="text-xs text-[#434656] uppercase tracking-wider">Account Status</p>
+                    <p class="font-medium text-green-600">Active</p>
+                </div>
+            </div>
+        `;
+        
+    } catch (err) {
+        errorEl.textContent = 'Failed to load profile: ' + err.message;
+        toast(err.message, 'error');
+    }
 }
 </script>
 </body>

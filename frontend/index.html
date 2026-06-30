@@ -193,93 +193,100 @@
         </div>
     </footer>
 
-    <script src="/js/api.js"></script>
-    <script>
-        // Render navigation with auth state
-        renderNav();
+<script src="/js/api.js"></script>
+<script>
+renderNav();
 
-        // Load categories and products
-        async function loadCategories() {
-            try {
-                const cats = await api('/products/meta/categories');
-                // Categories are already statically defined, but we could add dynamic ones
-            } catch(e) {}
+async function loadProducts(params = {}) {
+    try {
+        const products = await Products.getAll(params);
+        const grid = document.getElementById('product-grid');
+        
+        if (!products || products.length === 0) {
+            grid.innerHTML = '<p class="text-[#434656] col-span-full text-center py-8">No products found.</p>';
+            return;
         }
-
-        function productCard(p) {
-            return `
-                <div class="product-card bg-white border border-[#e0e3e5] rounded-xl overflow-hidden hover:border-[#0041c8]">
-                    <a href="/product.html?id=${p.id}">
-                        <div class="aspect-square bg-[#f2f4f6] overflow-hidden">
-                            <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
-                        </div>
-                    </a>
-                    <div class="p-4">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="text-xs text-[#434656] font-mono">${p.category || ''}</span>
-                            ${p.stock <= 5 ? `<span class="text-xs bg-[#fff3cd] text-[#856404] px-2 py-0.5 rounded">${p.stock} left</span>` : ''}
-                        </div>
-                        <a href="/product.html?id=${p.id}" class="font-medium hover:text-[#0041c8] transition-colors">${p.name}</a>
-                        <div class="flex items-center justify-between mt-3">
-                            <span class="font-['Geist'] text-xl font-bold text-[#0041c8]">${money(p.price)}</span>
-                            <button onclick="addToCart(${p.id}, 1)" class="px-4 py-2 bg-[#0041c8] text-white rounded-lg text-sm font-medium hover:bg-[#0055ff] transition-colors flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">add_shopping_cart</span> Add
-                            </button>
-                        </div>
+        
+        grid.innerHTML = products.map(p => `
+            <div class="product-card bg-white border border-[#e0e3e5] rounded-xl overflow-hidden hover:border-[#0041c8]">
+                <a href="/product.html?id=${p.id}">
+                    <div class="aspect-square bg-[#f2f4f6] overflow-hidden">
+                        <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
                     </div>
-                </div>`;
-        }
+                </a>
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs text-[#434656] font-mono">${p.category || ''}</span>
+                        ${p.stock <= 5 ? `<span class="text-xs bg-[#fff3cd] text-[#856404] px-2 py-0.5 rounded">${p.stock} left</span>` : ''}
+                    </div>
+                    <a href="/product.html?id=${p.id}" class="font-medium hover:text-[#0041c8] transition-colors">${p.name}</a>
+                    <div class="flex items-center justify-between mt-3">
+                        <span class="font-['Geist'] text-xl font-bold text-[#0041c8]">${money(p.price)}</span>
+                        <button onclick="handleAddToCart(${p.id})" class="px-4 py-2 bg-[#0041c8] text-white rounded-lg text-sm font-medium hover:bg-[#0055ff] transition-colors flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">add_shopping_cart</span> Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch(e) {
+        document.getElementById('product-grid').innerHTML = '<p class="text-[#ba1a1a] col-span-full text-center py-8">Failed to load products.</p>';
+        toast('Failed to load products', 'error');
+    }
+}
 
-        async function loadProducts(params = {}) {
-            try {
-                const qs = new URLSearchParams(params).toString();
-                const products = await api(`/products${qs ? '?' + qs : ''}`);
-                document.getElementById('product-grid').innerHTML = products.map(productCard).join('') || '<p class="text-[#434656] col-span-full text-center py-8">No products found.</p>';
-            } catch(e) {
-                document.getElementById('product-grid').innerHTML = '<p class="text-[#ba1a1a] col-span-full text-center py-8">Failed to load products.</p>';
-            }
-        }
+// Make loadProducts globally accessible for search
+window.loadProducts = loadProducts;
 
-        async function addToCart(productId, quantity) {
-            if (!Auth.isLoggedIn()) {
-                toast('Please log in first', 'error');
-                setTimeout(() => window.location.href = '/login.html', 1000);
-                return;
-            }
-            try {
-                await api('/cart/items', { method: 'POST', body: { product_id: productId, quantity: quantity } });
-                toast('Added to cart!', 'success');
-                updateCartCount();
-            } catch(e) {
-                toast(e.message, 'error');
-            }
-        }
+async function handleAddToCart(productId) {
+    if (!Auth.isLoggedIn()) {
+        toast('Please log in first', 'error');
+        setTimeout(() => window.location.href = '/login.html', 1000);
+        return;
+    }
+    try {
+        await Cart.add(productId, 1);
+        toast('Added to cart!', 'success');
+        await window.updateCartCount();
+    } catch(e) {
+        toast(e.message, 'error');
+    }
+}
 
-        async function updateCartCount() {
-            try {
-                const data = await api('/cart');
-                const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
-                document.getElementById('cart-count').textContent = count;
-            } catch(e) {}
+// Load categories for filter
+async function loadCategories() {
+    try {
+        const cats = await Products.getCategories();
+        const sel = document.getElementById('category-select');
+        if (sel) {
+            cats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.slug;
+                opt.textContent = c.name;
+                sel.appendChild(opt);
+            });
         }
+    } catch(e) {
+        console.error('Failed to load categories:', e);
+    }
+}
 
-        // Search functionality
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.querySelector('input[placeholder="Search products..."]');
-            if (searchInput) {
-                searchInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        loadProducts({ q: searchInput.value });
-                    }
-                });
-            }
-        });
+// Search functionality
+document.getElementById('search-btn')?.addEventListener('click', () => {
+    const q = document.getElementById('search-input')?.value;
+    const category = document.getElementById('category-select')?.value;
+    loadProducts({ q, category });
+});
 
-        // Load products and cart count
-        loadProducts();
-        if (Auth.isLoggedIn()) {
-            updateCartCount();
-        }
-    </script>
+// Initial load
+loadCategories();
+loadProducts();
+
+// Update cart count if logged in
+if (Auth.isLoggedIn()) {
+    window.updateCartCount();
+}
+</script>
 </body>
 </html>
