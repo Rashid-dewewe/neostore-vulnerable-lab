@@ -1,59 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Admin Central | NeoStore</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link href="/css/tokens.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
-        :root {
-            --admin-primary: #1a1a2e;
-            --admin-secondary: #16213e;
-            --admin-accent: #0f3460;
-            --admin-highlight: #e94560;
-            --admin-card: #ffffff;
-            --admin-text: #2d3436;
-            --admin-muted: #636e72;
-            --admin-border: #dfe6e9;
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
         }
-        
-        * { font-family: 'Inter', sans-serif; }
-        
-        .admin-body {
-            background: #f8f9fa;
-            min-height: 100vh;
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c3c5d9; border-radius: 10px; }
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid #e0e3e5;
+            border-radius: 12px;
+            transition: all 0.2s ease;
         }
-        
-        .admin-sidebar {
-            background: var(--admin-primary);
-            color: white;
-            width: 260px;
-            min-height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 1000;
-            overflow-y: auto;
+        .admin-card:hover {
+            border-color: #0041c8;
+            box-shadow: 0 4px 12px rgba(0,65,200,0.08);
         }
-        
-        .admin-sidebar .logo {
-            padding: 24px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
-        
-        .admin-sidebar .logo h1 {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        
-        .admin-sidebar .logo span {
-            color: var(--admin-highlight);
-        }
-        
-        .admin-sidebar .nav-item {
-            padding: 12px 20px;
+        .status-badge.delivered { background: #d4edda; color: #155724; }
+        .status-badge.paid { background: #d1ecf1; color: #0c5460; }
+        .status-badge.processing { background: #cce5ff; color: #004085; }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+        .status-badge.shipped { background: #d6d8db; color: #383d41; }
+        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
+        .nav-item {
+            padding: 10px 16px;
             margin: 4px 12px;
             border-radius: 8px;
             cursor: pointer;
@@ -61,530 +46,290 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.7);
+            color: #565e74;
         }
-        
-        .admin-sidebar .nav-item:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-        
-        .admin-sidebar .nav-item.active {
-            background: var(--admin-highlight);
-            color: white;
-        }
-        
-        .admin-sidebar .nav-item .icon {
-            font-size: 18px;
-            width: 24px;
-        }
-        
-        .admin-sidebar .nav-section {
-            padding: 16px 20px 8px;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.4);
-            letter-spacing: 1px;
-        }
-        
-        .admin-main {
-            margin-left: 260px;
-            padding: 24px 32px;
-        }
-        
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--admin-border);
-            margin-bottom: 24px;
-        }
-        
-        .admin-header h2 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--admin-text);
-        }
-        
-        .admin-header .user-info {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        
-        .admin-header .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--admin-highlight);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid var(--admin-border);
-        }
-        
-        .stat-card .label {
-            font-size: 13px;
-            color: var(--admin-muted);
-            font-weight: 500;
-        }
-        
-        .stat-card .value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--admin-text);
-            margin-top: 4px;
-        }
-        
-        .stat-card .change {
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 4px;
-        }
-        
-        .stat-card .change.positive { color: #00b894; }
-        .stat-card .change.negative { color: var(--admin-highlight); }
-        
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid var(--admin-border);
-            overflow-x: auto;
-        }
-        
-        .table-container table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .table-container th {
-            text-align: left;
-            padding: 12px 16px;
-            font-size: 12px;
-            text-transform: uppercase;
-            color: var(--admin-muted);
-            font-weight: 600;
-            border-bottom: 2px solid var(--admin-border);
-        }
-        
-        .table-container td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--admin-border);
-            font-size: 14px;
-        }
-        
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .status-badge.delivered { background: #d4edda; color: #155724; }
-        .status-badge.processing { background: #cce5ff; color: #004085; }
-        .status-badge.pending { background: #fff3cd; color: #856404; }
-        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
-        .status-badge.paid { background: #d1ecf1; color: #0c5460; }
-        .status-badge.shipped { background: #d6d8db; color: #383d41; }
-        
-        .admin-tabs {
-            display: flex;
-            gap: 8px;
-            border-bottom: 2px solid var(--admin-border);
-            margin-bottom: 24px;
-        }
-        
-        .admin-tabs button {
-            padding: 10px 20px;
-            border: none;
-            background: none;
-            font-weight: 500;
-            color: var(--admin-muted);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-            transition: all 0.2s;
-        }
-        
-        .admin-tabs button.active {
-            color: var(--admin-highlight);
-            border-bottom-color: var(--admin-highlight);
-        }
-        
-        .admin-tabs button:hover {
-            color: var(--admin-text);
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .search-bar {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
-        .search-bar input {
-            flex: 1;
-            padding: 10px 16px;
-            border: 1px solid var(--admin-border);
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        
-        .search-bar input:focus {
-            outline: none;
-            border-color: var(--admin-highlight);
-        }
-        
-        .btn-admin {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-admin-primary {
-            background: var(--admin-highlight);
-            color: white;
-        }
-        
-        .btn-admin-primary:hover {
-            background: #c0392b;
-        }
-        
-        .btn-admin-secondary {
-            background: var(--admin-border);
-            color: var(--admin-text);
-        }
-        
-        .btn-admin-secondary:hover {
-            background: #b2bec3;
-        }
-        
-        @media (max-width: 768px) {
-            .admin-sidebar {
-                width: 200px;
-            }
-            .admin-main {
-                margin-left: 200px;
-                padding: 16px;
-            }
-        }
+        .nav-item:hover { background: #f2f4f6; color: #191c1e; }
+        .nav-item.active { background: #dae2fd; color: #0041c8; font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #191c1e; }
+        .stat-label { font-size: 12px; color: #434656; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
-<body class="admin-body">
+<body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
     <!-- Sidebar -->
-    <aside class="admin-sidebar">
-        <div class="logo">
-            <h1>Neo<span>Store</span></h1>
-            <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px;">Admin Central</p>
+    <aside class="fixed left-0 top-0 h-full w-[280px] bg-white border-r border-[#e0e3e5] z-50 flex flex-col">
+        <div class="p-6 border-b border-[#e0e3e5]">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#0041c8] rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined">analytics</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl text-[#191c1e]">Admin Central</h1>
+                    <p class="text-xs text-[#434656]">Management Portal</p>
+                </div>
+            </div>
         </div>
         
-        <div class="nav-section">Main</div>
-        <div class="nav-item active" data-tab="dashboard">
-            <span class="icon">📊</span> Dashboard
-        </div>
-        <div class="nav-item" data-tab="inventory">
-            <span class="icon">📦</span> Inventory
-        </div>
-        <div class="nav-item" data-tab="orders">
-            <span class="icon">📋</span> Orders
-        </div>
-        <div class="nav-item" data-tab="customers">
-            <span class="icon">👥</span> Customers
-        </div>
-        <div class="nav-item" data-tab="analytics">
-            <span class="icon">📈</span> Analytics
-        </div>
+        <nav class="flex-1 overflow-y-auto custom-scrollbar py-4">
+            <div class="text-xs text-[#434656] px-6 py-2 uppercase tracking-wider">Main</div>
+            <div class="nav-item active" data-tab="dashboard">
+                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            </div>
+            <div class="nav-item" data-tab="inventory">
+                <span class="material-symbols-outlined">inventory_2</span> Inventory
+            </div>
+            <div class="nav-item" data-tab="orders">
+                <span class="material-symbols-outlined">shopping_cart</span> Orders
+            </div>
+            <div class="nav-item" data-tab="customers">
+                <span class="material-symbols-outlined">group</span> Customers
+            </div>
+            <div class="nav-item" data-tab="analytics">
+                <span class="material-symbols-outlined">monitoring</span> Analytics
+            </div>
+            
+            <div class="text-xs text-[#434656] px-6 py-2 mt-4 uppercase tracking-wider">System</div>
+            <div class="nav-item" data-tab="settings">
+                <span class="material-symbols-outlined">settings</span> Settings
+            </div>
+            <div class="nav-item" id="logout-btn">
+                <span class="material-symbols-outlined">logout</span> Log Out
+            </div>
+        </nav>
         
-        <div class="nav-section">System</div>
-        <div class="nav-item" data-tab="settings">
-            <span class="icon">⚙️</span> Settings
-        </div>
-        <div class="nav-item" id="logout-btn">
-            <span class="icon">🚪</span> Log Out
+        <div class="p-4 border-t border-[#e0e3e5]">
+            <button class="w-full bg-[#0041c8] text-white py-2 rounded-lg font-medium hover:bg-[#0055ff] transition-colors">
+                <span class="material-symbols-outlined text-sm">download</span> Export Report
+            </button>
         </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="admin-main">
+    <main class="ml-[280px] min-h-screen">
         <!-- Header -->
-        <header class="admin-header">
-            <h2 id="page-title">Dashboard</h2>
-            <div class="user-info">
-                <span id="admin-name" style="font-weight: 500;"></span>
-                <div class="avatar" id="admin-avatar">A</div>
+        <header class="bg-white border-b border-[#e0e3e5] px-8 py-4 flex items-center justify-between sticky top-0 z-40">
+            <h2 id="page-title" class="text-2xl font-bold text-[#191c1e]">Dashboard</h2>
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <span class="material-symbols-outlined text-[#434656] cursor-pointer">notifications</span>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-[#ba1a1a] rounded-full"></span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="admin-name" class="font-medium">Admin</span>
+                    <div id="admin-avatar" class="w-10 h-10 rounded-full bg-[#0041c8] text-white flex items-center justify-center font-bold">A</div>
+                </div>
             </div>
         </header>
 
-        <!-- Dashboard Tab -->
-        <div id="tab-dashboard" class="tab-content active">
-            <!-- Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="stat-card">
-                    <div class="label">Total Revenue</div>
-                    <div class="value" id="total-revenue">$0</div>
-                    <div class="change positive">↑ 12.5% from last month</div>
+        <div class="p-8">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Total Revenue</div>
+                        <div class="stat-value" id="total-revenue">$0</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 12.5% from last month</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value" id="total-orders">0</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 8.2% from last month</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Total Customers</div>
+                        <div class="stat-value" id="total-customers">0</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 5.4% from last month</div>
+                    </div>
+                    <div class="admin-card p-5">
+                        <div class="stat-label">Avg Order Value</div>
+                        <div class="stat-value" id="avg-order-value">$0</div>
+                        <div class="text-sm text-green-600 mt-1">↑ 3.1% from last month</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="label">Total Orders</div>
-                    <div class="value" id="total-orders">0</div>
-                    <div class="change positive">↑ 8.2% from last month</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Total Customers</div>
-                    <div class="value" id="total-customers">0</div>
-                    <div class="change positive">↑ 5.4% from last month</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Avg Order Value</div>
-                    <div class="value" id="avg-order-value">$0</div>
-                    <div class="change positive">↑ 3.1% from last month</div>
+
+                <!-- Recent Orders Table -->
+                <div class="admin-card overflow-hidden">
+                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6] flex justify-between">
+                        <h3 class="font-semibold">Recent Orders</h3>
+                        <span class="text-sm text-[#434656]">Last 30 days</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-[#f2f4f6]">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Order ID</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Customer</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Status</th>
+                                    <th class="px-4 py-3 text-right text-xs text-[#434656] uppercase">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders" class="divide-y divide-[#e0e3e5]">
+                                <tr><td colspan="5" class="px-4 py-8 text-center text-[#434656]">Loading orders...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- Recent Orders -->
-            <div class="table-container">
-                <h3 style="font-weight: 600; margin-bottom: 16px;">Recent Orders</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recent-orders">
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: var(--admin-muted);">Loading orders...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Inventory Tab -->
-        <div id="tab-inventory" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="stat-card">
-                    <div class="label">Total SKU</div>
-                    <div class="value">1,284</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Low Stock Alerts</div>
-                    <div class="value" style="color: var(--admin-highlight);">24</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Inventory Value</div>
-                    <div class="value">$1.2M</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Restock Pending</div>
-                    <div class="value">08</div>
-                </div>
-            </div>
-            
-            <div class="search-bar">
-                <input type="text" placeholder="Search by name, SKU..." />
-                <button class="btn-admin btn-admin-primary">Search</button>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>SKU</th>
-                            <th>Category</th>
-                            <th>Stock</th>
-                            <th>Price</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inventory-list">
-                        <tr>
-                            <td colspan="6" style="text-align: center; color: var(--admin-muted);">Loading inventory...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Orders Tab -->
-        <div id="tab-orders" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="stat-card">
-                    <div class="label">Total Orders</div>
-                    <div class="value" id="orders-total">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Pending Fulfillment</div>
-                    <div class="value" style="color: #f39c12;">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Revenue This Month</div>
-                    <div class="value" id="orders-revenue">$0</div>
-                </div>
-            </div>
-            
-            <div class="search-bar">
-                <input type="text" placeholder="Search orders, customers, or items..." />
-                <button class="btn-admin btn-admin-primary">Search</button>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer</th>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-list">
-                        <tr>
-                            <td colspan="6" style="text-align: center; color: var(--admin-muted);">Loading orders...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Customers Tab -->
-        <div id="tab-customers" class="tab-content">
-            <div class="search-bar">
-                <input type="text" placeholder="Search by name, email, or ID..." />
-                <button class="btn-admin btn-admin-primary">Search</button>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Customer</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Loyalty Points</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="customers-list">
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: var(--admin-muted);">Loading customers...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Analytics Tab -->
-        <div id="tab-analytics" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="stat-card">
-                    <div class="label">Revenue</div>
-                    <div class="value" id="analytics-revenue">$0</div>
-                    <div class="change positive">↑ 8.2%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Orders</div>
-                    <div class="value" id="analytics-orders">0</div>
-                    <div class="change positive">↑ 2.1%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Customers</div>
-                    <div class="value" id="analytics-customers">0</div>
-                    <div class="change positive">↑ 5.4%</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Conversion Rate</div>
-                    <div class="value">2.7%</div>
-                    <div class="change positive">↑ 0.3%</div>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="table-container">
-                    <h3 style="font-weight: 600; margin-bottom: 16px;">Top Products</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Sales</th>
-                                <th>Stock</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top-products">
-                            <tr>
-                                <td colspan="3" style="text-align: center; color: var(--admin-muted);">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Inventory Tab -->
+            <div id="tab-inventory" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="admin-card p-5"><div class="stat-label">Total SKU</div><div class="stat-value">1,284</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Low Stock Alerts</div><div class="stat-value text-[#ba1a1a]">24</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Inventory Value</div><div class="stat-value">$1.2M</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Restock Pending</div><div class="stat-value">08</div></div>
                 </div>
                 
-                <div class="table-container">
-                    <h3 style="font-weight: 600; margin-bottom: 16px;">Regional Sales</h3>
-                    <div style="padding: 20px; text-align: center; color: var(--admin-muted);">
-                        🌍 Regional sales data visualization would go here
+                <div class="admin-card overflow-hidden">
+                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6]">
+                        <div class="flex gap-4">
+                            <input type="text" placeholder="Search by name, SKU..." class="flex-1 px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
+                            <button class="px-6 py-2 bg-[#0041c8] text-white rounded-lg hover:bg-[#0055ff]">Search</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-[#f2f4f6]">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Product</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">SKU</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Category</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Stock</th>
+                                    <th class="px-4 py-3 text-right text-xs text-[#434656] uppercase">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-list" class="divide-y divide-[#e0e3e5]">
+                                <tr><td colspan="5" class="px-4 py-8 text-center text-[#434656]">Loading inventory...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Settings Tab -->
-        <div id="tab-settings" class="tab-content">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="stat-card">
-                    <h3 style="font-weight: 600; margin-bottom: 16px;">Personal Information</h3>
-                    <div class="mb-3">
-                        <label style="font-size: 12px; color: var(--admin-muted);">First Name</label>
-                        <input type="text" class="w-full p-2 border rounded" value="Admin" />
-                    </div>
-                    <div class="mb-3">
-                        <label style="font-size: 12px; color: var(--admin-muted);">Last Name</label>
-                        <input type="text" class="w-full p-2 border rounded" value="User" />
-                    </div>
-                    <div class="mb-3">
-                        <label style="font-size: 12px; color: var(--admin-muted);">Email</label>
-                        <input type="email" class="w-full p-2 border rounded" id="settings-email" />
-                    </div>
-                    <button class="btn-admin btn-admin-primary">Save Changes</button>
+            <!-- Orders Tab -->
+            <div id="tab-orders" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="admin-card p-5"><div class="stat-label">Total Orders</div><div class="stat-value" id="orders-total">0</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Pending Fulfillment</div><div class="stat-value text-[#f39c12]">0</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Revenue This Month</div><div class="stat-value" id="orders-revenue">$0</div></div>
                 </div>
                 
-                <div class="stat-card">
-                    <h3 style="font-weight: 600; margin-bottom: 16px;">Security</h3>
-                    <div class="mb-3">
-                        <label style="font-size: 12px; color: var(--admin-muted);">Current Password</label>
-                        <input type="password" class="w-full p-2 border rounded" placeholder="••••••••" />
+                <div class="admin-card overflow-hidden">
+                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6]">
+                        <input type="text" placeholder="Search orders, customers, or items..." class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
                     </div>
-                    <div class="mb-3">
-                        <label style="font-size: 12px; color: var(--admin-muted);">New Password</label>
-                        <input type="password" class="w-full p-2 border rounded" placeholder="Min. 12 characters" />
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-[#f2f4f6]">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Order ID</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Customer</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Date</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Status</th>
+                                    <th class="px-4 py-3 text-right text-xs text-[#434656] uppercase">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-list" class="divide-y divide-[#e0e3e5]">
+                                <tr><td colspan="5" class="px-4 py-8 text-center text-[#434656]">Loading orders...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-                    <button class="btn-admin btn-admin-primary">Update Password</button>
+                    <div class="p-4 border-t border-[#e0e3e5] flex justify-between text-sm text-[#434656]">
+                        <span>Showing 1-10 of 12,482 orders</span>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Prev</button>
+                            <button class="px-3 py-1 bg-[#0041c8] text-white rounded">1</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">2</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">3</button>
+                            <button class="px-3 py-1 border rounded hover:bg-[#f2f4f6]">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers Tab -->
+            <div id="tab-customers" class="tab-content">
+                <div class="admin-card overflow-hidden">
+                    <div class="p-4 border-b border-[#e0e3e5] bg-[#f2f4f6]">
+                        <input type="text" placeholder="Search by name, email, or ID..." class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-[#f2f4f6]">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Customer</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Email</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Role</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Loyalty Points</th>
+                                    <th class="px-4 py-3 text-left text-xs text-[#434656] uppercase">Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-list" class="divide-y divide-[#e0e3e5]">
+                                <tr><td colspan="5" class="px-4 py-8 text-center text-[#434656]">Loading customers...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="tab-analytics" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="admin-card p-5"><div class="stat-label">Revenue</div><div class="stat-value" id="analytics-revenue">$0</div><div class="text-sm text-green-600">↑ 8.2%</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Orders</div><div class="stat-value" id="analytics-orders">0</div><div class="text-sm text-green-600">↑ 2.1%</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Customers</div><div class="stat-value" id="analytics-customers">0</div><div class="text-sm text-green-600">↑ 5.4%</div></div>
+                    <div class="admin-card p-5"><div class="stat-label">Conversion Rate</div><div class="stat-value">2.7%</div><div class="text-sm text-green-600">↑ 0.3%</div></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="admin-card p-5">
+                        <h3 class="font-semibold mb-4">Top Products</h3>
+                        <div id="top-products" class="space-y-2">
+                            <div class="text-center text-[#434656] py-4">Loading...</div>
+                        </div>
+                    </div>
+                    <div class="admin-card p-5 flex items-center justify-center" style="min-height: 200px;">
+                        <div class="text-center text-[#434656]">
+                            <span class="material-symbols-outlined text-6xl">public</span>
+                            <p class="mt-2">Regional Sales Data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="admin-card p-6">
+                        <h3 class="font-semibold mb-4">Personal Information</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-[#434656]">Full Name</label>
+                                <input type="text" id="settings-name" class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[#434656]">Email</label>
+                                <input type="email" id="settings-email" class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]"/>
+                            </div>
+                            <button class="w-full bg-[#0041c8] text-white py-2 rounded-lg hover:bg-[#0055ff]">Save Changes</button>
+                        </div>
+                    </div>
+                    <div class="admin-card p-6">
+                        <h3 class="font-semibold mb-4">Security</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-[#434656]">Current Password</label>
+                                <input type="password" class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]" placeholder="••••••••"/>
+                            </div>
+                            <div>
+                                <label class="text-xs text-[#434656]">New Password</label>
+                                <input type="password" class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:outline-none focus:border-[#0041c8]" placeholder="Min. 12 characters"/>
+                            </div>
+                            <button class="w-full bg-[#0041c8] text-white py-2 rounded-lg hover:bg-[#0055ff]">Update Password</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -592,46 +337,44 @@
 
     <script src="/js/api.js"></script>
     <script>
-      const user = Auth.getUser();
-      console.log('Current user:', user);
+        // Check admin access
+        const user = Auth.getUser();
+        console.log('Current user:', user);
 
-      // Check if user is admin
-      if (!user || (user.role !== 'admin' && user.role !== 'support')) {
-          toast('Access denied. Admin privileges required.', 'error');
-          setTimeout(() => {
-              window.location.href = '/index.html';
-          }, 2000);
-      } else {
-          // User is admin, load the dashboard
-          document.getElementById('admin-name').textContent = user.full_name || 'Admin';
-          document.getElementById('admin-avatar').textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'A';
-          // Load all data...
-      }
+        // Check if user is admin
+        if (!user || (user.role !== 'admin' && user.role !== 'support')) {
+            toast('Access denied. Admin privileges required.', 'error');
+            setTimeout(() => {
+                window.location.href = '/index.html';
+            }, 2000);
+        } else {
+            // User is admin, load the dashboard
+            document.getElementById('admin-name').textContent = user.full_name || 'Admin';
+            document.getElementById('admin-avatar').textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'A';
+            document.getElementById('settings-name').value = user.full_name || '';
+            document.getElementById('settings-email').value = user.email || '';
+            
+            // Load all data
+            loadDashboard();
+        }
+
         // Navigation
         document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
             item.addEventListener('click', function() {
-                // Update active state
                 document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
                 this.classList.add('active');
-                
-                // Show tab content
                 const tabName = this.dataset.tab;
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
                 document.getElementById(`tab-${tabName}`).classList.add('active');
-                
-                // Update page title
-                document.getElementById('page-title').textContent = 
-                    tabName.charAt(0).toUpperCase() + tabName.slice(1);
+                document.getElementById('page-title').textContent = tabName.charAt(0).toUpperCase() + tabName.slice(1);
             });
         });
 
         // Logout
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            Auth.logout();
-        });
+        document.getElementById('logout-btn').addEventListener('click', () => Auth.logout());
 
-        // Load data
-        async function loadDashboardData() {
+        // Load all data
+        async function loadDashboard() {
             try {
                 // Load revenue stats
                 const revenue = await api('/admin/reports/revenue');
@@ -639,91 +382,78 @@
                 document.getElementById('total-orders').textContent = revenue.totals?.order_count || 0;
                 document.getElementById('avg-order-value').textContent = money(revenue.totals?.avg_order_value || 0);
                 
-                // Load recent orders
+                // Load orders
                 const orders = await api('/admin/orders');
-                const recentOrders = orders.slice(0, 5);
-                document.getElementById('recent-orders').innerHTML = recentOrders.map(o => `
+                
+                // Recent orders (dashboard)
+                document.getElementById('recent-orders').innerHTML = orders.slice(0, 5).map(o => `
                     <tr>
-                        <td><span class="font-mono text-xs">${o.order_number}</span></td>
-                        <td>${o.customer_name || o.customer_email}</td>
-                        <td>${new Date(o.created_at).toLocaleDateString()}</td>
-                        <td><span class="status-badge ${o.status}">${o.status}</span></td>
-                        <td>${money(o.total)}</td>
+                        <td class="px-4 py-3 font-mono text-sm">${o.order_number}</td>
+                        <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
+                        <td class="px-4 py-3 text-sm text-[#434656]">${new Date(o.created_at).toLocaleDateString()}</td>
+                        <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
+                        <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
                     </tr>
                 `).join('');
                 
-                // Load customers count
-                const customers = await api('/admin/customers');
-                document.getElementById('total-customers').textContent = customers.length;
-                
-            } catch (err) {
-                console.error('Error loading dashboard:', err);
-            }
-        }
-
-        async function loadOrdersData() {
-            try {
-                const orders = await api('/admin/orders');
+                // Orders tab
                 document.getElementById('orders-total').textContent = orders.length;
+                document.getElementById('orders-revenue').textContent = money(orders.reduce((sum, o) => sum + Number(o.total), 0));
+                
                 document.getElementById('orders-list').innerHTML = orders.slice(0, 10).map(o => `
                     <tr>
-                        <td><span class="font-mono text-xs">${o.order_number}</span></td>
-                        <td>${o.customer_name || o.customer_email}</td>
-                        <td>${new Date(o.created_at).toLocaleDateString()}</td>
-                        <td><span class="status-badge ${o.status}">${o.status}</span></td>
-                        <td>${money(o.total)}</td>
-                        <td><button class="btn-admin btn-admin-secondary text-xs py-1 px-2">View</button></td>
+                        <td class="px-4 py-3 font-mono text-sm text-[#0041c8]">${o.order_number}</td>
+                        <td class="px-4 py-3">${o.customer_name || o.customer_email}</td>
+                        <td class="px-4 py-3 text-sm text-[#434656]">${new Date(o.created_at).toLocaleDateString()}</td>
+                        <td class="px-4 py-3"><span class="status-badge ${o.status}">${o.status}</span></td>
+                        <td class="px-4 py-3 text-right font-bold">${money(o.total)}</td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                console.error('Error loading orders:', err);
-            }
-        }
-
-        async function loadCustomersData() {
-            try {
+                
+                // Load customers
                 const customers = await api('/admin/customers');
+                document.getElementById('total-customers').textContent = customers.length;
                 document.getElementById('customers-list').innerHTML = customers.map(c => `
                     <tr>
-                        <td><strong>${c.full_name}</strong></td>
-                        <td>${c.email}</td>
-                        <td><span class="status-badge ${c.role === 'admin' ? 'delivered' : 'pending'}">${c.role}</span></td>
-                        <td>${c.loyalty_points || 0}</td>
-                        <td><button class="btn-admin btn-admin-secondary text-xs py-1 px-2">View</button></td>
+                        <td class="px-4 py-3 font-medium">${c.full_name}</td>
+                        <td class="px-4 py-3">${c.email}</td>
+                        <td class="px-4 py-3"><span class="status-badge ${c.role}">${c.role}</span></td>
+                        <td class="px-4 py-3">${c.loyalty_points || 0}</td>
+                        <td class="px-4 py-3 text-sm text-[#434656]">${new Date(c.created_at).toLocaleDateString()}</td>
                     </tr>
                 `).join('');
-            } catch (err) {
-                console.error('Error loading customers:', err);
-            }
-        }
-
-        async function loadInventoryData() {
-            try {
+                
+                // Analytics
+                document.getElementById('analytics-revenue').textContent = money(revenue.totals?.revenue || 0);
+                document.getElementById('analytics-orders').textContent = revenue.totals?.order_count || 0;
+                document.getElementById('analytics-customers').textContent = customers.length;
+                
+                // Top products
+                if (revenue.top_products && revenue.top_products.length) {
+                    document.getElementById('top-products').innerHTML = revenue.top_products.slice(0, 5).map(p => `
+                        <div class="flex justify-between items-center py-2 border-b border-[#e0e3e5]">
+                            <span>${p.name}</span>
+                            <span class="font-medium">${money(p.revenue)}</span>
+                        </div>
+                    `).join('');
+                }
+                
+                // Load inventory
                 const products = await api('/admin/products');
                 document.getElementById('inventory-list').innerHTML = products.slice(0, 10).map(p => `
                     <tr>
-                        <td><strong>${p.name}</strong></td>
-                        <td><span class="font-mono text-xs">${p.sku}</span></td>
-                        <td>${p.category || 'Uncategorized'}</td>
-                        <td><span class="${p.stock < 10 ? 'text-red-600 font-bold' : ''}">${p.stock}</span></td>
-                        <td>${money(p.price)}</td>
-                        <td><button class="btn-admin btn-admin-secondary text-xs py-1 px-2">Edit</button></td>
+                        <td class="px-4 py-3 font-medium">${p.name}</td>
+                        <td class="px-4 py-3 font-mono text-sm">${p.sku}</td>
+                        <td class="px-4 py-3">${p.category || 'Uncategorized'}</td>
+                        <td class="px-4 py-3 ${p.stock < 10 ? 'text-[#ba1a1a] font-bold' : ''}">${p.stock}</td>
+                        <td class="px-4 py-3 text-right font-bold">${money(p.price)}</td>
                     </tr>
                 `).join('');
+                
             } catch (err) {
-                console.error('Error loading inventory:', err);
+                console.error('Error loading dashboard data:', err);
+                toast('Failed to load dashboard data: ' + err.message, 'error');
             }
-        }
-
-        // Load all data
-        loadDashboardData();
-        loadOrdersData();
-        loadCustomersData();
-        loadInventoryData();
-
-        // Set email in settings
-        if (user) {
-            document.getElementById('settings-email').value = user.email;
         }
     </script>
 </body>
