@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Deals | NeoStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <link href="/css/main.css" rel="stylesheet"/>
+</head>
+<body class="bg-[#f7f9fb]">
+    <nav id="site-nav"></nav>
+    
+    <main class="pt-24 pb-12 px-6 max-w-7xl mx-auto">
+        <div class="bg-[#0041c8] text-white rounded-2xl p-12 mb-8 text-center">
+            <span class="inline-block bg-[#dce1ff] text-[#0041c8] px-4 py-1.5 rounded-full text-sm font-medium mb-4">🔥 LIMITED TIME</span>
+            <h1 class="font-['Geist'] text-4xl md:text-5xl font-bold">Special Deals & Offers</h1>
+            <p class="text-white/80 text-lg mt-4 max-w-2xl mx-auto">Save big on our premium products with exclusive discounts.</p>
+        </div>
+        
+        <div id="deals-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Deals loaded by JavaScript -->
+        </div>
+    </main>
+    
+    <script src="/js/api.js"></script>
+    <script>
+        renderNav();
+        
+        async function loadDeals() {
+            try {
+                const products = await Products.getAll();
+                const deals = products.slice(0, 6).map(p => ({
+                    ...p,
+                    discount: Math.floor(Math.random() * 30) + 10
+                }));
+                
+                const grid = document.getElementById('deals-grid');
+                
+                grid.innerHTML = deals.map(p => `
+                    <div class="bg-white border border-[#e0e3e5] rounded-xl overflow-hidden hover:border-[#0041c8] hover:shadow-lg transition-all group">
+                        <a href="/product.html?id=${p.id}">
+                            <div class="aspect-square bg-[#f2f4f6] overflow-hidden relative">
+                                <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"/>
+                                <div class="absolute top-4 left-4 bg-[#ba1a1a] text-white px-3 py-1 rounded-full text-sm font-bold">-${p.discount}%</div>
+                            </div>
+                        </a>
+                        <div class="p-4">
+                            <a href="/product.html?id=${p.id}" class="font-medium hover:text-[#0041c8] transition-colors">${p.name}</a>
+                            <div class="flex items-center gap-3 mt-2">
+                                <span class="font-['Geist'] text-xl font-bold text-[#ba1a1a]">${money(p.price * (1 - p.discount/100))}</span>
+                                <span class="text-sm text-[#434656] line-through">${money(p.price)}</span>
+                            </div>
+                            <button onclick="window.location.href='/product.html?id=${p.id}'" class="w-full mt-4 px-4 py-2 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">View Deal</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                grid.innerHTML = '<p class="text-[#ba1a1a]">Failed to load deals</p>';
+            }
+        }
+        
+        loadDeals();
+    </script>
+</body>
+</html>

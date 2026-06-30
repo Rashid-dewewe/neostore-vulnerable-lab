@@ -232,9 +232,9 @@ function renderNav() {
                 <a href="/index.html" class="logo">Neo<span>Store</span></a>
                 <div class="nav-links">
                     <a href="/index.html" class="${window.location.pathname === '/' || window.location.pathname === '/index.html' ? 'active' : ''}">Shop</a>
-                    <a href="#" class="${window.location.pathname === '/categories' ? 'active' : ''}">Categories</a>
-                    <a href="#" class="${window.location.pathname === '/deals' ? 'active' : ''}">Deals</a>
-                    <a href="#" class="${window.location.pathname === '/support' ? 'active' : ''}">Support</a>
+                    <a href="/categories.html" class="${window.location.pathname === '/categories.html' ? 'active' : ''}">Categories</a>
+                    <a href="/deals.html" class="${window.location.pathname === '/deals.html' ? 'active' : ''}">Deals</a>
+                    <a href="/support.html" class="${window.location.pathname === '/support.html' ? 'active' : ''}">Support</a>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="hidden lg:flex items-center bg-[#f2f4f6] rounded-full px-4 py-1.5 border border-[#e0e3e5]">

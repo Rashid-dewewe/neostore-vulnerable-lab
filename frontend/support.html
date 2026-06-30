@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Support | NeoStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <link href="/css/main.css" rel="stylesheet"/>
+</head>
+<body class="bg-[#f7f9fb]">
+    <nav id="site-nav"></nav>
+    
+    <main class="pt-24 pb-12 px-6 max-w-4xl mx-auto">
+        <h1 class="font-['Geist'] text-3xl font-bold mb-4">Support Center</h1>
+        <p class="text-[#434656] mb-8">How can we help you today?</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white border border-[#e0e3e5] rounded-xl p-6 hover:border-[#0041c8] transition-all">
+                <span class="material-symbols-outlined text-4xl text-[#0041c8]">help</span>
+                <h3 class="font-semibold text-lg mt-3">FAQs</h3>
+                <p class="text-[#434656] text-sm mt-1">Find answers to common questions.</p>
+                <a href="#" class="inline-block mt-4 text-[#0041c8] font-medium hover:underline">View FAQs →</a>
+            </div>
+            <div class="bg-white border border-[#e0e3e5] rounded-xl p-6 hover:border-[#0041c8] transition-all">
+                <span class="material-symbols-outlined text-4xl text-[#0041c8]">chat</span>
+                <h3 class="font-semibold text-lg mt-3">Live Chat</h3>
+                <p class="text-[#434656] text-sm mt-1">Chat with our support team.</p>
+                <button class="inline-block mt-4 text-[#0041c8] font-medium hover:underline">Start Chat →</button>
+            </div>
+            <div class="bg-white border border-[#e0e3e5] rounded-xl p-6 hover:border-[#0041c8] transition-all">
+                <span class="material-symbols-outlined text-4xl text-[#0041c8]">email</span>
+                <h3 class="font-semibold text-lg mt-3">Email Us</h3>
+                <p class="text-[#434656] text-sm mt-1">We'll respond within 24 hours.</p>
+                <a href="#" class="inline-block mt-4 text-[#0041c8] font-medium hover:underline">Send Email →</a>
+            </div>
+            <div class="bg-white border border-[#e0e3e5] rounded-xl p-6 hover:border-[#0041c8] transition-all">
+                <span class="material-symbols-outlined text-4xl text-[#0041c8]">phone</span>
+                <h3 class="font-semibold text-lg mt-3">Call Us</h3>
+                <p class="text-[#434656] text-sm mt-1">Available 24/7 support.</p>
+                <a href="#" class="inline-block mt-4 text-[#0041c8] font-medium hover:underline">+1 (555) 012-3456</a>
+            </div>
+        </div>
+        
+        <div class="bg-white border border-[#e0e3e5] rounded-xl p-8">
+            <h2 class="font-['Geist'] text-xl font-bold mb-4">Submit a Ticket</h2>
+            <form id="support-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-[#434656] mb-1">Subject</label>
+                    <input type="text" class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:border-[#0041c8] focus:ring-2 focus:ring-[#0041c8] outline-none" placeholder="What's the issue?"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-[#434656] mb-1">Message</label>
+                    <textarea rows="4" class="w-full px-4 py-2 border border-[#e0e3e5] rounded-lg focus:border-[#0041c8] focus:ring-2 focus:ring-[#0041c8] outline-none" placeholder="Describe your issue..."></textarea>
+                </div>
+                <button type="submit" class="px-6 py-2.5 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Submit Ticket</button>
+            </form>
+        </div>
+    </main>
+    
+    <script src="/js/api.js"></script>
+    <script>
+        renderNav();
+        
+        document.getElementById('support-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            toast('Ticket submitted successfully! We\'ll respond within 24 hours.', 'success');
+            this.reset();
+        });
+    </script>
+</body>
+</html>

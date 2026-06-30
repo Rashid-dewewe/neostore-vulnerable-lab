@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Categories | NeoStore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <link href="/css/main.css" rel="stylesheet"/>
+</head>
+<body class="bg-[#f7f9fb]">
+    <nav id="site-nav"></nav>
+    
+    <main class="pt-24 pb-12 px-6 max-w-7xl mx-auto">
+        <h1 class="font-['Geist'] text-3xl font-bold mb-8">Browse Categories</h1>
+        <p class="text-[#434656] mb-8">Explore our curated collection of premium products.</p>
+        
+        <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Categories loaded by JavaScript -->
+        </div>
+    </main>
+    
+    <script src="/js/api.js"></script>
+    <script>
+        renderNav();
+        
+        async function loadCategories() {
+            try {
+                const categories = await Products.getCategories();
+                const grid = document.getElementById('categories-grid');
+                
+                grid.innerHTML = categories.map(cat => `
+                    <a href="/index.html?category=${cat.slug}" class="bg-white border border-[#e0e3e5] rounded-xl p-8 text-center hover:border-[#0041c8] hover:shadow-lg transition-all group">
+                        <div class="w-16 h-16 bg-[#f2f4f6] rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-[#dce1ff] transition-colors">
+                            <span class="material-symbols-outlined text-3xl text-[#434656] group-hover:text-[#0041c8]">category</span>
+                        </div>
+                        <h3 class="font-semibold text-lg">${cat.name}</h3>
+                        <p class="text-sm text-[#434656] mt-1">${cat.slug}</p>
+                    </a>
+                `).join('');
+            } catch(e) {
+                grid.innerHTML = '<p class="text-[#ba1a1a]">Failed to load categories</p>';
+            }
+        }
+        
+        loadCategories();
+    </script>
+</body>
+</html>
