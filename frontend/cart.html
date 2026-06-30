@@ -1,111 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Cart | NeoStore</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="/css/tokens.css" rel="stylesheet"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cart | NeoStore</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+        .cart-item:hover {
+            border-color: #0041c8;
+        }
+    </style>
 </head>
-<body>
-<nav id="site-nav" class="border-b" style="border-color:var(--color-outline);background:var(--color-surface-container-lowest)"></nav>
-
-<main class="max-w-4xl mx-auto px-6 py-12">
-  <h1 class="font-display text-2xl font-bold mb-6">Your Cart</h1>
-  <div id="cart-list" class="flex flex-col gap-3"></div>
-  <div class="flex justify-between items-center mt-6 card p-5">
-    <span class="font-medium">Subtotal</span>
-    <span id="subtotal" class="font-display text-xl font-semibold">$0.00</span>
-  </div>
-  <a href="/checkout.html" class="btn-primary inline-block mt-5">Proceed to checkout</a>
-</main>
-
-<script src="/js/api.js"></script>
-<script>
-renderNav();
-
-if (!Auth.isLoggedIn()) {
-  toast('Please log in to view your cart items.', 'error');
-  setTimeout(() => {
-    window.location.href = '/login.html';
-  }, 1200);
-} else {
-  loadCartAndStash();
-}
-
-async function loadCart() {
-  try {
-    const data = await api('/cart');
-    renderCartList(data.items);
-  } catch (err) {
-    document.getElementById('cart-list').innerHTML = `<p style="color:var(--color-error)">${err.message}</p>`;
-  }
-}
-
-function renderCartList(items) {
-  const container = document.getElementById('cart-list');
-  if (!items || !items.length) {
-    container.innerHTML = '<p style="color:var(--color-on-surface-variant)">Your cart is empty.</p>';
-    document.getElementById('subtotal').textContent = money(0);
-    return;
-  }
-
-  container.innerHTML = items.map(item => `
-    <div class="card p-4 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-4">
-        <img src="${item.image_url}" class="w-16 h-16 object-cover rounded" style="background:var(--color-surface-container-low)"/>
-        <div>
-          <h3 class="font-medium">${item.name}</h3>
-          <p class="text-sm" style="color:var(--color-on-surface-variant)">${money(item.price)} each</p>
+<body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
+    <nav id="site-nav" class="fixed top-0 w-full z-50 bg-white border-b border-[#e0e3e5]">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
+            <a href="/index.html" class="font-['Geist'] font-bold text-xl text-[#0041c8]">NeoStore</a>
+            <div class="flex items-center gap-6 text-sm font-medium">
+                <a href="/index.html" class="text-[#434656] hover:text-[#0041c8] transition-colors">Shop</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Categories</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Support</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="auth-buttons"></div>
+            </div>
         </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <input type="number" value="${item.quantity}" min="1" max="${item.stock}" data-item-id="${item.item_id}" class="qty-input input w-20 text-center"/>
-        <button data-item-id="${item.item_id}" class="remove-btn btn-danger text-xs !py-1.5">Remove</button>
-      </div>
-    </div>
-  `).join('');
+    </nav>
 
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  document.getElementById('subtotal').textContent = money(subtotal);
+    <main class="pt-24 pb-20 px-6 max-w-7xl mx-auto">
+        <h1 class="font-['Geist'] text-3xl font-bold mb-8">Your Cart</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Cart Items -->
+            <div class="lg:col-span-2">
+                <div id="cart-list" class="space-y-4">
+                    <!-- Items loaded by JavaScript -->
+                </div>
+            </div>
 
-  document.querySelectorAll('.qty-input').forEach(input => {
-    input.addEventListener('change', async (e) => {
-      const itemId = e.target.dataset.itemId;
-      const quantity = Number(e.target.value);
-      try {
-        await api(`/cart/items/${itemId}`, { method: 'PUT', body: { quantity } });
-        toast('Quantity updated', 'success');
-        loadCartAndStash();
-      } catch (err) { 
-        toast(err.message, 'error'); 
-      }
-    });
-  });
+            <!-- Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white border border-[#e0e3e5] rounded-xl p-6 sticky top-24">
+                    <h3 class="font-['Geist'] text-xl font-bold mb-4">Order Summary</h3>
+                    <div class="space-y-3 border-b border-[#e0e3e5] pb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-[#434656]">Subtotal</span>
+                            <span id="subtotal" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-[#434656]">Shipping</span>
+                            <span id="shipping" class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-[#434656]">Tax</span>
+                            <span id="tax" class="font-medium">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="pt-4">
+                        <div class="flex justify-between">
+                            <span class="font-['Geist'] text-xl font-bold">Total</span>
+                            <span id="total" class="font-['Geist'] text-xl font-bold text-[#0041c8]">$0.00</span>
+                        </div>
+                    </div>
+                    <a href="/checkout.html" class="block w-full mt-6 px-6 py-3 bg-[#0041c8] text-white rounded-lg text-center font-medium hover:bg-[#0055ff] transition-colors">Proceed to Checkout</a>
+                    
+                    <div class="mt-4 p-3 bg-[#dce1ff] rounded-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#0041c8] text-sm">verified</span>
+                        <p class="text-xs text-[#0041c8]">Secure checkout protected by 256-bit encryption</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-  document.querySelectorAll('.remove-btn').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const itemId = e.target.dataset.itemId;
-      try {
-        await api(`/cart/items/${itemId}`, { method: 'DELETE' });
-        toast('Item removed from cart', 'success');
-        loadCartAndStash();
-      } catch (err) {
-        toast(err.message, 'error');
-      }
-    });
-  });
-}
+    <script src="/js/api.js"></script>
+    <script>
+        renderNav();
 
-async function loadCartAndStash() {
-  await loadCart();
-  try {
-    const data = await api('/cart');
-    sessionStorage.setItem('neostore_checkout_items', JSON.stringify(data.items || []));
-  } catch (e) {
-    console.error('Failed to stash items state:', e);
-  }
-}
-</script>
+        if (!Auth.isLoggedIn()) {
+            toast('Please log in to view your cart', 'error');
+            setTimeout(() => window.location.href = '/login.html', 1200);
+        } else {
+            loadCart();
+        }
+
+        async function loadCart() {
+            try {
+                const data = await api('/cart');
+                renderCart(data.items || []);
+            } catch (err) {
+                document.getElementById('cart-list').innerHTML = `<p class="text-[#ba1a1a]">${err.message}</p>`;
+            }
+        }
+
+        function renderCart(items) {
+            const container = document.getElementById('cart-list');
+            
+            if (!items.length) {
+                container.innerHTML = `
+                    <div class="bg-white border border-[#e0e3e5] rounded-xl p-12 text-center">
+                        <span class="material-symbols-outlined text-6xl text-[#434656]">shopping_bag</span>
+                        <h3 class="font-['Geist'] text-xl font-bold mt-4">Your cart is empty</h3>
+                        <p class="text-[#434656] mt-2">Browse our products and add items to your cart.</p>
+                        <a href="/index.html" class="inline-block mt-6 px-6 py-3 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Start Shopping</a>
+                    </div>
+                `;
+                updateSummary(items);
+                return;
+            }
+
+            container.innerHTML = items.map((item, index) => `
+                <div class="cart-item bg-white border border-[#e0e3e5] rounded-xl p-4 flex items-center gap-4">
+                    <img src="${item.image_url}" class="w-20 h-20 object-cover rounded-lg"/>
+                    <div class="flex-1">
+                        <h4 class="font-medium">${item.name}</h4>
+                        <p class="text-sm text-[#434656]">${money(item.price)} each</p>
+                        ${item.stock <= 5 ? `<p class="text-xs text-[#856404] bg-[#fff3cd] inline-block px-2 py-0.5 rounded">Only ${item.stock} left</p>` : ''}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center border border-[#e0e3e5] rounded-lg">
+                            <button onclick="updateQuantity(${item.item_id}, ${item.quantity - 1})" class="px-3 py-1.5 hover:bg-[#f2f4f6] transition-colors">−</button>
+                            <span class="w-10 text-center font-medium">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.item_id}, ${item.quantity + 1})" class="px-3 py-1.5 hover:bg-[#f2f4f6] transition-colors">+</button>
+                        </div>
+                        <button onclick="removeItem(${item.item_id})" class="p-2 text-[#ba1a1a] hover:bg-[#ffdad6] rounded-lg transition-colors">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </div>
+                    <div class="text-right min-w-[80px]">
+                        <p class="font-['Geist'] text-lg font-bold text-[#0041c8]">${money(item.price * item.quantity)}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            updateSummary(items);
+        }
+
+        async function updateQuantity(itemId, newQuantity) {
+            if (newQuantity < 1) return;
+            try {
+                await api(`/cart/items/${itemId}`, { method: 'PUT', body: { quantity: newQuantity } });
+                loadCart();
+            } catch (err) {
+                toast(err.message, 'error');
+            }
+        }
+
+        async function removeItem(itemId) {
+            try {
+                await api(`/cart/items/${itemId}`, { method: 'DELETE' });
+                toast('Item removed', 'success');
+                loadCart();
+            } catch (err) {
+                toast(err.message, 'error');
+            }
+        }
+
+        function updateSummary(items) {
+            const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = items.length ? 15.00 : 0;
+            const tax = subtotal * 0.085;
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = money(subtotal);
+            document.getElementById('shipping').textContent = money(shipping);
+            document.getElementById('tax').textContent = money(tax);
+            document.getElementById('total').textContent = money(total);
+        }
+    </script>
 </body>
 </html>

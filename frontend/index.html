@@ -1,77 +1,285 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NeoStore | Modern Retail Excellence</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
-<link href="/css/tokens.css" rel="stylesheet"/>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NeoStore | Modern Retail Excellence</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #f7f9fb 0%, #e6e8ea 100%);
+        }
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,65,200,0.12);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .glass-effect {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .category-tile {
+            transition: all 0.3s ease;
+        }
+        .category-tile:hover {
+            transform: scale(1.05);
+            border-color: #0041c8;
+        }
+    </style>
 </head>
-<body>
-<nav id="site-nav" class="border-b" style="border-color:var(--color-outline);background:var(--color-surface-container-lowest)"></nav>
-
-<header class="max-w-7xl mx-auto px-6 pt-14 pb-10">
-  <h1 class="font-display text-4xl md:text-5xl font-bold tracking-tight max-w-2xl">Engineered for everyday excellence.</h1>
-  <p class="mt-4 max-w-xl" style="color:var(--color-on-surface-variant)">Discover our curated collection of premium products.</p>
-</header>
-
-<section class="max-w-7xl mx-auto px-6 pb-10 flex flex-wrap gap-3 items-center">
-  <input id="search-input" class="input max-w-xs" placeholder="Search products..."/>
-  <select id="category-select" class="input max-w-[200px]"><option value="">All categories</option></select>
-  <button id="search-btn" class="btn-secondary">Search</button>
-</section>
-
-<main class="max-w-7xl mx-auto px-6 pb-20">
-  <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
-</main>
-
-<script src="/js/api.js"></script>
-<script>
-renderNav('shop');
-
-async function loadCategories() {
-  const cats = await api('/products/meta/categories');
-  const sel = document.getElementById('category-select');
-  cats.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.slug; opt.textContent = c.name;
-    sel.appendChild(opt);
-  });
-}
-
-function productCard(p) {
-  return `
-    <a href="/product.html?id=${p.id}" class="card overflow-hidden flex flex-col group">
-      <div class="aspect-square overflow-hidden" style="background:var(--color-surface-container-low)">
-        <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform"/>
-      </div>
-      <div class="p-4 flex-1 flex flex-col">
-        <span class="font-mono text-xs" style="color:var(--color-on-surface-variant)">${p.category || ''}</span>
-        <h3 class="font-medium mt-1 flex-1">${p.name}</h3>
-        <div class="flex items-center justify-between mt-3">
-          <span class="font-display font-semibold text-lg">${money(p.price)}</span>
-          ${p.stock <= 5 ? `<span class="badge badge-warn">${p.stock} left</span>` : ''}
+<body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
+    <!-- Navigation -->
+    <nav id="site-nav" class="fixed top-0 w-full z-50 bg-white border-b border-[#e0e3e5]">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
+            <a href="/index.html" class="font-['Geist'] font-bold text-xl text-[#0041c8]">NeoStore</a>
+            <div class="flex items-center gap-6 text-sm font-medium">
+                <a href="/index.html" class="text-[#0041c8] border-b-2 border-[#0041c8] pb-1">Shop</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Categories</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Deals</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Support</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden lg:flex items-center bg-[#f2f4f6] rounded-full px-4 py-1.5 border border-[#e0e3e5]">
+                    <span class="material-symbols-outlined text-[#434656] text-sm">search</span>
+                    <input class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="Search products..."/>
+                </div>
+                <button class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors relative">
+                    <span class="material-symbols-outlined text-[#434656]">favorite</span>
+                </button>
+                <a href="/cart.html" class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors relative">
+                    <span class="material-symbols-outlined text-[#434656]">shopping_bag</span>
+                    <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-[#0041c8] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                </a>
+                <div id="auth-buttons">
+                    <a href="/login.html" class="px-4 py-1.5 bg-[#0041c8] text-white rounded-lg text-sm font-medium hover:bg-[#0055ff] transition-colors">Sign In</a>
+                </div>
+            </div>
         </div>
-      </div>
-    </a>`;
-}
+    </nav>
 
-async function loadProducts(params = {}) {
-  const qs = new URLSearchParams(params).toString();
-  const products = await api(`/products${qs ? '?' + qs : ''}`);
-  document.getElementById('product-grid').innerHTML = products.map(productCard).join('') || '<p>No products found.</p>';
-}
+    <main class="mt-16">
+        <!-- Hero Section -->
+        <section class="hero-gradient py-16">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <span class="inline-block bg-[#dce1ff] text-[#0041c8] px-4 py-1.5 rounded-full text-sm font-medium mb-4">NEW ARRIVAL v2.0</span>
+                        <h1 class="font-['Geist'] text-4xl md:text-5xl font-bold tracking-tight">The Future of Precise Hardware.</h1>
+                        <p class="mt-4 text-[#434656] text-lg max-w-lg">Engineered for professionals who demand technical accuracy and aesthetic purity. Our new workspace series is now available.</p>
+                        <div class="mt-8 flex gap-4">
+                            <a href="#" class="px-6 py-3 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Explore Collection</a>
+                            <a href="#" class="px-6 py-3 border border-[#e0e3e5] rounded-lg font-medium hover:bg-[#f2f4f6] transition-colors">Specifications</a>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVmD6x1fAljtL_L93jHOzZE7GpOcQJ48GllG9DT5xTIvofDHIgSd8Vykl1boVemJwQgAAeF2iPw09wQ7XnoKyW2GT8c77551upgrlivDl9PcYIyYGTNMzlmPYqkqVFRrDrw14Pw7Mbwhwmazs0OXOrUzu1vlc9LA1k_2octoyqACBJkr-zezjLzFBpDfaSevetqPasz0-WxI6GPB08zOPVxl30F0OJtRttD0PXZ21IFHv1lczn4PWkyL8w6Qb6OvWfkdvw562U0mo" alt="Hero product" class="w-full h-auto animate-float"/>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-document.getElementById('search-btn').addEventListener('click', () => {
-  loadProducts({
-    q: document.getElementById('search-input').value || undefined,
-    category: document.getElementById('category-select').value || undefined,
-  });
-});
+        <!-- Categories -->
+        <section class="py-12">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="font-['Geist'] text-2xl font-bold">Categories</h2>
+                        <p class="text-[#434656]">Browse our curated technical ecosystem.</p>
+                    </div>
+                    <a href="#" class="text-[#0041c8] font-medium flex items-center gap-1 hover:underline">View All <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <a href="#" class="category-tile bg-white border border-[#e0e3e5] p-6 rounded-xl text-center hover:shadow-lg">
+                        <div class="w-12 h-12 bg-[#f2f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-[#434656]">laptop_mac</span>
+                        </div>
+                        <span class="text-sm font-medium">Hardware</span>
+                    </a>
+                    <a href="#" class="category-tile bg-white border border-[#e0e3e5] p-6 rounded-xl text-center hover:shadow-lg">
+                        <div class="w-12 h-12 bg-[#f2f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-[#434656]">router</span>
+                        </div>
+                        <span class="text-sm font-medium">Networking</span>
+                    </a>
+                    <a href="#" class="category-tile bg-white border border-[#e0e3e5] p-6 rounded-xl text-center hover:shadow-lg">
+                        <div class="w-12 h-12 bg-[#f2f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-[#434656]">developer_board</span>
+                        </div>
+                        <span class="text-sm font-medium">Embedded</span>
+                    </a>
+                    <a href="#" class="category-tile bg-white border border-[#e0e3e5] p-6 rounded-xl text-center hover:shadow-lg">
+                        <div class="w-12 h-12 bg-[#f2f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-[#434656]">headphones</span>
+                        </div>
+                        <span class="text-sm font-medium">Audio</span>
+                    </a>
+                    <a href="#" class="category-tile bg-white border border-[#e0e3e5] p-6 rounded-xl text-center hover:shadow-lg">
+                        <div class="w-12 h-12 bg-[#f2f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-[#434656]">mouse</span>
+                        </div>
+                        <span class="text-sm font-medium">Peripherals</span>
+                    </a>
+                    <a href="#" class="category-tile bg-white border border-[#e0e3e5] p-6 rounded-xl text-center hover:shadow-lg">
+                        <div class="w-12 h-12 bg-[#f2f4f6] rounded-lg flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined text-[#434656]">dns</span>
+                        </div>
+                        <span class="text-sm font-medium">Servers</span>
+                    </a>
+                </div>
+            </div>
+        </section>
 
-loadCategories();
-loadProducts();
-</script>
+        <!-- Featured Products -->
+        <section class="py-12 bg-white">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <h2 class="font-['Geist'] text-2xl font-bold">Featured Products</h2>
+                    <div class="flex-1 h-px bg-[#e0e3e5]"></div>
+                    <div class="flex gap-2">
+                        <button class="p-2 border border-[#e0e3e5] rounded-lg hover:bg-[#f2f4f6]"><span class="material-symbols-outlined">chevron_left</span></button>
+                        <button class="p-2 border border-[#e0e3e5] rounded-lg hover:bg-[#f2f4f6]"><span class="material-symbols-outlined">chevron_right</span></button>
+                    </div>
+                </div>
+                <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Products loaded by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section class="py-12 bg-[#f2f4f6] border-y border-[#e0e3e5]">
+            <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                    <h3 class="font-['Geist'] text-2xl font-bold">Join the Registry</h3>
+                    <p class="text-[#434656]">Stay updated with our latest releases and exclusive offers.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <input type="email" placeholder="professional@company.com" class="px-4 py-2 border border-[#e0e3e5] rounded-lg bg-white focus:border-[#0041c8] focus:ring-2 focus:ring-[#0041c8] outline-none min-w-[280px]"/>
+                    <button class="px-6 py-2 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Subscribe</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#f2f4f6] border-t border-[#e0e3e5] py-8">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <span class="font-['Geist'] font-bold text-[#191c1e]">NeoStore Systems</span>
+                <p class="text-sm text-[#434656]">© 2026 NeoStore Systems. All rights reserved.</p>
+            </div>
+            <div class="flex flex-wrap gap-6 text-sm">
+                <a href="#" class="text-[#434656] hover:text-[#0041c8]">Terms of Service</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8]">Privacy Policy</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8]">Contact Us</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8]">API Status</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        // Render navigation with auth state
+        renderNav();
+
+        // Load categories and products
+        async function loadCategories() {
+            try {
+                const cats = await api('/products/meta/categories');
+                // Categories are already statically defined, but we could add dynamic ones
+            } catch(e) {}
+        }
+
+        function productCard(p) {
+            return `
+                <div class="product-card bg-white border border-[#e0e3e5] rounded-xl overflow-hidden hover:border-[#0041c8]">
+                    <a href="/product.html?id=${p.id}">
+                        <div class="aspect-square bg-[#f2f4f6] overflow-hidden">
+                            <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+                        </div>
+                    </a>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-xs text-[#434656] font-mono">${p.category || ''}</span>
+                            ${p.stock <= 5 ? `<span class="text-xs bg-[#fff3cd] text-[#856404] px-2 py-0.5 rounded">${p.stock} left</span>` : ''}
+                        </div>
+                        <a href="/product.html?id=${p.id}" class="font-medium hover:text-[#0041c8] transition-colors">${p.name}</a>
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="font-['Geist'] text-xl font-bold text-[#0041c8]">${money(p.price)}</span>
+                            <button onclick="addToCart(${p.id}, 1)" class="px-4 py-2 bg-[#0041c8] text-white rounded-lg text-sm font-medium hover:bg-[#0055ff] transition-colors flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">add_shopping_cart</span> Add
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        async function loadProducts(params = {}) {
+            try {
+                const qs = new URLSearchParams(params).toString();
+                const products = await api(`/products${qs ? '?' + qs : ''}`);
+                document.getElementById('product-grid').innerHTML = products.map(productCard).join('') || '<p class="text-[#434656] col-span-full text-center py-8">No products found.</p>';
+            } catch(e) {
+                document.getElementById('product-grid').innerHTML = '<p class="text-[#ba1a1a] col-span-full text-center py-8">Failed to load products.</p>';
+            }
+        }
+
+        async function addToCart(productId, quantity) {
+            if (!Auth.isLoggedIn()) {
+                toast('Please log in first', 'error');
+                setTimeout(() => window.location.href = '/login.html', 1000);
+                return;
+            }
+            try {
+                await api('/cart/items', { method: 'POST', body: { product_id: productId, quantity: quantity } });
+                toast('Added to cart!', 'success');
+                updateCartCount();
+            } catch(e) {
+                toast(e.message, 'error');
+            }
+        }
+
+        async function updateCartCount() {
+            try {
+                const data = await api('/cart');
+                const count = data.items ? data.items.reduce((sum, item) => sum + item.quantity, 0) : 0;
+                document.getElementById('cart-count').textContent = count;
+            } catch(e) {}
+        }
+
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.querySelector('input[placeholder="Search products..."]');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        loadProducts({ q: searchInput.value });
+                    }
+                });
+            }
+        });
+
+        // Load products and cart count
+        loadProducts();
+        if (Auth.isLoggedIn()) {
+            updateCartCount();
+        }
+    </script>
 </body>
 </html>

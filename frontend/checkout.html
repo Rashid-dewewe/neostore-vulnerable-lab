@@ -1,94 +1,451 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="light" lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Checkout | NeoStore</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="/css/tokens.css" rel="stylesheet"/>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Checkout | NeoStore</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .step-active {
+            background: #0041c8;
+            color: white;
+            border: 2px solid #0041c8;
+        }
+        .step-complete {
+            background: #dce1ff;
+            color: #0041c8;
+            border: 2px solid #0041c8;
+        }
+        .step-inactive {
+            background: #f2f4f6;
+            color: #434656;
+            border: 2px solid #e0e3e5;
+        }
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #e0e3e5;
+        }
+        .step-line.active {
+            background: #0041c8;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #0041c8 !important;
+            box-shadow: 0 0 0 2px rgba(0,65,200,0.1);
+        }
+        .checkout-card {
+            transition: all 0.3s ease;
+        }
+        .checkout-card:hover {
+            border-color: #0041c8;
+        }
+    </style>
 </head>
-<body>
-<nav id="site-nav" class="border-b" style="border-color:var(--color-outline);background:var(--color-surface-container-lowest)"></nav>
+<body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
+    <nav id="site-nav" class="fixed top-0 w-full z-50 bg-white border-b border-[#e0e3e5]">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
+            <a href="/index.html" class="font-['Geist'] font-bold text-xl text-[#0041c8]">NeoStore</a>
+            <div class="flex items-center gap-6 text-sm font-medium">
+                <a href="/index.html" class="text-[#434656] hover:text-[#0041c8] transition-colors">Shop</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Categories</a>
+                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Support</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/cart.html" class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors relative">
+                    <span class="material-symbols-outlined text-[#434656]">shopping_bag</span>
+                    <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-[#0041c8] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                </a>
+                <div id="auth-buttons"></div>
+            </div>
+        </div>
+    </nav>
 
-<main class="max-w-3xl mx-auto px-6 py-12">
-  <h1 class="font-display text-2xl font-bold mb-6">Checkout Verification</h1>
+    <main class="pt-24 pb-20 px-6 max-w-7xl mx-auto">
+        <h1 class="font-['Geist'] text-3xl font-bold mb-8">Checkout</h1>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left Column: Checkout Steps -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Progress Steps -->
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="flex items-center flex-1">
+                        <div class="step-circle step-active">1</div>
+                        <div class="step-line active"></div>
+                    </div>
+                    <div class="flex items-center flex-1">
+                        <div class="step-circle step-inactive">2</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="flex items-center flex-1">
+                        <div class="step-circle step-inactive">3</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="flex items-center flex-1">
+                        <div class="step-circle step-inactive">4</div>
+                    </div>
+                </div>
 
-  <div id="items" class="flex flex-col gap-2 mb-6"></div>
+                <!-- Step 1: Shipping Information -->
+                <section class="bg-white border border-[#e0e3e5] rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-['Geist'] text-xl font-bold">1. Shipping Information</h2>
+                        <span class="material-symbols-outlined text-[#0041c8]">local_shipping</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-[#434656] mb-1">Full Name</label>
+                            <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="John Doe"/>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-[#434656] mb-1">Street Address</label>
+                            <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="123 Tech Avenue"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-[#434656] mb-1">City</label>
+                            <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="San Francisco"/>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-[#434656] mb-1">State</label>
+                                <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="CA"/>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-[#434656] mb-1">Zip Code</label>
+                                <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="94105"/>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-[#434656] mb-1">Country</label>
+                            <select class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors">
+                                <option>United States</option>
+                                <option>Canada</option>
+                                <option>United Kingdom</option>
+                                <option>Germany</option>
+                                <option>France</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="nextStep(2)" class="mt-6 px-6 py-3 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Continue to Shipping</button>
+                </section>
 
-  <div class="card p-5 flex flex-col gap-3">
-    <label class="text-sm font-medium">Shipping address</label>
-    <input id="address" required class="input mb-2" placeholder="123 Security Blvd, Cyber City"/>
+                <!-- Step 2: Shipping Method (hidden initially) -->
+                <section id="step-2" class="bg-white border border-[#e0e3e5] rounded-xl p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-['Geist'] text-xl font-bold">2. Shipping Method</h2>
+                        <span class="material-symbols-outlined text-[#0041c8]">speed</span>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="flex items-center justify-between p-4 border border-[#e0e3e5] rounded-lg cursor-pointer hover:bg-[#f7f9fb] transition-colors">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="shipping" value="standard" class="text-[#0041c8]"/>
+                                <div>
+                                    <p class="font-medium">Standard Shipping</p>
+                                    <p class="text-sm text-[#434656]">3-5 business days</p>
+                                </div>
+                            </div>
+                            <span class="font-medium text-[#0041c8]">Free</span>
+                        </label>
+                        <label class="flex items-center justify-between p-4 border-2 border-[#0041c8] bg-[#dce1ff] rounded-lg cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="shipping" value="express" checked class="text-[#0041c8]"/>
+                                <div>
+                                    <p class="font-medium">Express Delivery</p>
+                                    <p class="text-sm text-[#434656]">1-2 business days</p>
+                                </div>
+                            </div>
+                            <span class="font-medium text-[#0041c8]">$15.00</span>
+                        </label>
+                        <label class="flex items-center justify-between p-4 border border-[#e0e3e5] rounded-lg cursor-pointer hover:bg-[#f7f9fb] transition-colors">
+                            <div class="flex items-center gap-3">
+                                <input type="radio" name="shipping" value="overnight" class="text-[#0041c8]"/>
+                                <div>
+                                    <p class="font-medium">Overnight Priority</p>
+                                    <p class="text-sm text-[#434656]">Next business day</p>
+                                </div>
+                            </div>
+                            <span class="font-medium text-[#0041c8]">$25.00</span>
+                        </label>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="prevStep(1)" class="px-6 py-3 border border-[#e0e3e5] rounded-lg font-medium hover:bg-[#f2f4f6] transition-colors">Back</button>
+                        <button onclick="nextStep(3)" class="px-6 py-3 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Continue to Payment</button>
+                    </div>
+                </section>
 
-    <label class="text-sm font-medium">Promo Voucher Code</label>
-    <input id="coupon" class="input mb-2" placeholder="e.g. SAVE10"/>
+                <!-- Step 3: Payment Method (hidden initially) -->
+                <section id="step-3" class="bg-white border border-[#e0e3e5] rounded-xl p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-['Geist'] text-xl font-bold">3. Payment Method</h2>
+                        <span class="material-symbols-outlined text-[#0041c8]">payments</span>
+                    </div>
+                    <div class="flex gap-4 mb-6">
+                        <button class="flex-1 py-3 border-2 border-[#0041c8] bg-[#dce1ff] text-[#0041c8] rounded-lg font-medium flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">credit_card</span> Credit Card
+                        </button>
+                        <button class="flex-1 py-3 border border-[#e0e3e5] text-[#434656] rounded-lg font-medium flex items-center justify-center gap-2 hover:bg-[#f7f9fb] transition-colors">
+                            <span class="material-symbols-outlined">paypal</span> PayPal
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-[#434656] mb-1">Card Number</label>
+                            <div class="relative">
+                                <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="0000 0000 0000 0000"/>
+                                <span class="absolute right-3 top-3 material-symbols-outlined text-[#434656] opacity-50">lock</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-[#434656] mb-1">Expiry Date</label>
+                            <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="MM/YY"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-[#434656] mb-1">CVV</label>
+                            <input type="text" class="w-full px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors" placeholder="123"/>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="prevStep(2)" class="px-6 py-3 border border-[#e0e3e5] rounded-lg font-medium hover:bg-[#f2f4f6] transition-colors">Back</button>
+                        <button onclick="nextStep(4)" class="px-6 py-3 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Continue to Review</button>
+                    </div>
+                </section>
 
-    <label class="text-sm font-medium">Payment Details</label>
-    <input id="card" required class="input" placeholder="4111 2222 3333 4444"/>
-    
-    <div class="flex justify-between items-center border-t pt-4 mt-2">
-      <span class="text-sm font-medium">Total Billable Amount</span>
-      <span id="sum-subtotal" class="font-display text-lg font-bold">$0.00</span>
-    </div>
+                <!-- Step 4: Review (hidden initially) -->
+                <section id="step-4" class="bg-white border border-[#e0e3e5] rounded-xl p-6 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-['Geist'] text-xl font-bold">4. Review & Place Order</h2>
+                        <span class="material-symbols-outlined text-[#0041c8]">fact_check</span>
+                    </div>
+                    <div id="review-items" class="space-y-3">
+                        <!-- Items loaded by JavaScript -->
+                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button onclick="prevStep(3)" class="px-6 py-3 border border-[#e0e3e5] rounded-lg font-medium hover:bg-[#f2f4f6] transition-colors">Back</button>
+                        <button id="place-order-btn" class="px-6 py-3 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors flex items-center gap-2">
+                            <span class="material-symbols-outlined">check_circle</span> Place Order
+                        </button>
+                    </div>
+                </section>
+            </div>
 
-    <button id="place-order" class="btn-primary mt-4 w-full">Finalize Purchase Order</button>
-    <pre id="result" class="text-xs font-mono mt-4 text-emerald-600 whitespace-pre-wrap"></pre>
-  </div>
-</main>
+            <!-- Right Column: Order Summary -->
+            <aside class="lg:col-span-4">
+                <div class="sticky top-24 space-y-6">
+                    <div class="bg-white border border-[#e0e3e5] rounded-xl p-6">
+                        <h3 class="font-['Geist'] text-xl font-bold mb-4">Order Summary</h3>
+                        <div id="order-items" class="space-y-3 border-b border-[#e0e3e5] pb-4 mb-4">
+                            <!-- Items loaded by JavaScript -->
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#434656]">Subtotal</span>
+                                <span id="subtotal" class="font-medium">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#434656]">Shipping</span>
+                                <span id="shipping" class="font-medium">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-[#434656]">Tax</span>
+                                <span id="tax" class="font-medium">$0.00</span>
+                            </div>
+                        </div>
+                        <div class="border-t border-[#e0e3e5] pt-4 mt-4">
+                            <div class="flex justify-between">
+                                <span class="font-['Geist'] text-xl font-bold">Total</span>
+                                <span id="total" class="font-['Geist'] text-xl font-bold text-[#0041c8]">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
 
-<script src="/js/api.js"></script>
-<script>
-renderNav();
-let items = [];
-try {
-  items = JSON.parse(sessionStorage.getItem('neostore_checkout_items')) || [];
-} catch {}
+                    <!-- Promo Code -->
+                    <div class="bg-white border border-[#e0e3e5] rounded-xl p-6">
+                        <label class="block text-sm font-medium text-[#434656] mb-2">Promo Code</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="promo-input" class="flex-1 px-4 py-2.5 border border-[#e0e3e5] rounded-lg bg-[#f7f9fb] focus:bg-white transition-colors uppercase" placeholder="ENTER CODE"/>
+                            <button id="apply-promo" class="px-4 py-2.5 bg-[#0041c8] text-white rounded-lg font-medium hover:bg-[#0055ff] transition-colors">Apply</button>
+                        </div>
+                    </div>
 
-function renderItems() {
-  const container = document.getElementById('items');
-  if(!items.length) {
-    container.innerHTML = `<p class="text-sm text-neutral-500">Order buffer clear.</p>`;
-    return;
-  }
-  container.innerHTML = items.map((item, idx) => `
-    <div class="card p-4 flex justify-between items-center" data-idx="${idx}" data-price="${item.price}" data-pid="${item.product_id}" data-name="${item.name}">
-      <div>
-        <div class="font-medium text-sm">${item.name}</div>
-        <div class="text-xs text-neutral-400">Qty: ${item.quantity}</div>
-      </div>
-      <span class="text-sm font-semibold">${money(item.price * item.quantity)}</span>
-    </div>
-  `).join('');
-  updateSubtotal();
-}
+                    <!-- Secure Checkout Badge -->
+                    <div class="bg-[#dce1ff] border border-[#0041c8] rounded-xl p-4 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[#0041c8]">verified</span>
+                        <p class="text-sm text-[#0041c8]">Your purchase is secured by NeoStore's 256-bit encryption.</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
 
-function updateSubtotal() {
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  document.getElementById('sum-subtotal').textContent = money(subtotal);
-}
+    <script src="/js/api.js"></script>
+    <script>
+        renderNav();
+        let cartItems = [];
+        let currentStep = 1;
+        let subtotal = 0;
 
-renderItems();
+        // Load cart items
+        async function loadCart() {
+            try {
+                const data = await api('/cart');
+                cartItems = data.items || [];
+                updateOrderSummary();
+                updateReviewItems();
+            } catch(e) {
+                console.error('Failed to load cart:', e);
+            }
+        }
 
-document.getElementById('place-order').addEventListener('click', async () => {
-  if (!items.length) return;
-  const coupon_codes = document.getElementById('coupon').value
-    .split(',').map(s => s.trim()).filter(Boolean);
-  try {
-    const order = await api('/checkout', {
-      method: 'POST',
-      body: {
-        items: items.map(i => ({ product_id: i.product_id, name: i.name, price: i.price, quantity: i.quantity })),
-        coupon_codes,
-        shipping_address: document.getElementById('address').value,
-        payment: { card_number: document.getElementById('card').value },
-      },
-    });
-    document.getElementById('result').textContent = `Order ${order.order_number} Processed successfully. Total charged: ${money(order.total)}`;
-    sessionStorage.removeItem('neostore_checkout_items');
-    toast(`Order complete`, 'success');
-  } catch (e) {
-    document.getElementById('result').textContent = e.message;
-  }
-});
-</script>
+        function updateOrderSummary() {
+            const container = document.getElementById('order-items');
+            subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            container.innerHTML = cartItems.map(item => `
+                <div class="flex items-center gap-3">
+                    <img src="${item.image_url}" class="w-12 h-12 object-cover rounded-lg"/>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">${item.name}</p>
+                        <p class="text-xs text-[#434656]">Qty: ${item.quantity}</p>
+                    </div>
+                    <span class="font-medium text-sm">${money(item.price * item.quantity)}</span>
+                </div>
+            `).join('') || '<p class="text-[#434656]">Your cart is empty.</p>';
+
+            const shipping = 15.00;
+            const tax = subtotal * 0.085;
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = money(subtotal);
+            document.getElementById('shipping').textContent = money(shipping);
+            document.getElementById('tax').textContent = money(tax);
+            document.getElementById('total').textContent = money(total);
+        }
+
+        function updateReviewItems() {
+            const container = document.getElementById('review-items');
+            container.innerHTML = cartItems.map(item => `
+                <div class="flex items-center justify-between border-b border-[#e0e3e5] pb-3">
+                    <div class="flex items-center gap-3">
+                        <img src="${item.image_url}" class="w-12 h-12 object-cover rounded-lg"/>
+                        <div>
+                            <p class="font-medium text-sm">${item.name}</p>
+                            <p class="text-xs text-[#434656]">Qty: ${item.quantity}</p>
+                        </div>
+                    </div>
+                    <span class="font-medium">${money(item.price * item.quantity)}</span>
+                </div>
+            `).join('');
+        }
+
+        function nextStep(step) {
+            currentStep = step;
+            updateSteps();
+        }
+
+        function prevStep(step) {
+            currentStep = step;
+            updateSteps();
+        }
+
+        function updateSteps() {
+            // Hide all steps
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}`);
+                if (el) el.classList.add('hidden');
+            }
+            
+            // Show current step
+            const currentEl = document.getElementById(`step-${currentStep}`);
+            if (currentEl) currentEl.classList.remove('hidden');
+
+            // Update step circles
+            document.querySelectorAll('.step-circle').forEach((circle, index) => {
+                const stepNum = index + 1;
+                circle.className = 'step-circle';
+                if (stepNum < currentStep) {
+                    circle.classList.add('step-complete');
+                } else if (stepNum === currentStep) {
+                    circle.classList.add('step-active');
+                } else {
+                    circle.classList.add('step-inactive');
+                }
+            });
+
+            // Update step lines
+            document.querySelectorAll('.step-line').forEach((line, index) => {
+                const stepNum = index + 1;
+                line.className = 'step-line';
+                if (stepNum < currentStep) {
+                    line.classList.add('active');
+                }
+            });
+        }
+
+        // Place order
+        document.getElementById('place-order-btn')?.addEventListener('click', async function() {
+            if (!cartItems.length) {
+                toast('Your cart is empty', 'error');
+                return;
+            }
+
+            try {
+                const order = await api('/checkout', {
+                    method: 'POST',
+                    body: {
+                        items: cartItems.map(i => ({
+                            product_id: i.product_id,
+                            name: i.name,
+                            price: i.price,
+                            quantity: i.quantity
+                        })),
+                        shipping_address: '123 Tech Avenue, San Francisco, CA 94105',
+                        payment: { card_number: '4242' }
+                    }
+                });
+                
+                toast(`Order ${order.order_number} placed successfully!`, 'success');
+                setTimeout(() => {
+                    window.location.href = '/orders.html';
+                }, 1500);
+            } catch(e) {
+                toast(e.message, 'error');
+            }
+        });
+
+        // Apply promo code
+        document.getElementById('apply-promo')?.addEventListener('click', function() {
+            const code = document.getElementById('promo-input').value.trim();
+            if (code) {
+                toast(`Promo code "${code}" applied!`, 'success');
+            } else {
+                toast('Please enter a promo code', 'error');
+            }
+        });
+
+        // Initialize
+        if (Auth.isLoggedIn()) {
+            loadCart();
+        } else {
+            toast('Please log in to checkout', 'error');
+            setTimeout(() => window.location.href = '/login.html', 1000);
+        }
+    </script>
 </body>
 </html>
