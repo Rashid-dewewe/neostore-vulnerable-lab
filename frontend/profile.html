@@ -14,24 +14,74 @@
 <main class="max-w-2xl mx-auto px-6 py-12">
   <h1 class="font-display text-2xl font-bold mb-6">Your profile</h1>
   <div id="profile-card" class="card p-5"></div>
+  <div id="error-message" class="text-sm mt-4" style="color:var(--color-error)"></div>
 </main>
 
 <script src="/js/api.js"></script>
 <script>
+// First render the navigation
 renderNav();
-if (!requireLoginOrRedirect()) {}
-const user = Auth.getUser();
 
-async function load() {
-  const me = await api(`/users/${user.id}`);
-  document.getElementById('profile-card').innerHTML = `
-    <div class="flex justify-between"><span class="text-sm" style="color:var(--color-on-surface-variant)">Name</span><span class="font-medium">${me.full_name}</span></div>
-    <div class="flex justify-between mt-2"><span class="text-sm" style="color:var(--color-on-surface-variant)">Email</span><span class="font-mono text-sm">${me.email}</span></div>
-    <div class="flex justify-between mt-2"><span class="text-sm" style="color:var(--color-on-surface-variant)">Role</span><span class="badge badge-neutral">${me.role}</span></div>
-    <div class="flex justify-between mt-2"><span class="text-sm" style="color:var(--color-on-surface-variant)">Loyalty points</span><span class="font-mono text-sm">${me.loyalty_points}</span></div>
-  `;
+// Check if user is logged in
+if (!Auth.isLoggedIn()) {
+  document.getElementById('error-message').textContent = 'Please log in to view your profile.';
+  toast('Please log in first', 'error');
+  setTimeout(() => {
+    window.location.href = '/login.html';
+  }, 2000);
+} else {
+  loadProfile();
 }
-load();
+
+async function loadProfile() {
+  const user = Auth.getUser();
+  const card = document.getElementById('profile-card');
+  const errorEl = document.getElementById('error-message');
+  
+  if (!user || !user.id) {
+    errorEl.textContent = 'User data not found. Please log in again.';
+    return;
+  }
+  
+  try {
+    console.log('Loading profile for user:', user.id);
+    const me = await api(`/users/${user.id}`);
+    console.log('Profile data:', me);
+    
+    if (!me) {
+      errorEl.textContent = 'No profile data found.';
+      return;
+    }
+    
+    card.innerHTML = `
+      <div class="flex justify-between py-2 border-b">
+        <span class="text-sm" style="color:var(--color-on-surface-variant)">Name</span>
+        <span class="font-medium">${me.full_name || 'N/A'}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b">
+        <span class="text-sm" style="color:var(--color-on-surface-variant)">Email</span>
+        <span class="font-mono text-sm">${me.email || 'N/A'}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b">
+        <span class="text-sm" style="color:var(--color-on-surface-variant)">Role</span>
+        <span class="badge ${me.role === 'admin' ? 'badge-warn' : me.role === 'support' ? 'badge-success' : 'badge-neutral'}">${me.role || 'N/A'}</span>
+      </div>
+      <div class="flex justify-between py-2 border-b">
+        <span class="text-sm" style="color:var(--color-on-surface-variant)">Phone</span>
+        <span class="font-mono text-sm">${me.phone || 'Not provided'}</span>
+      </div>
+      <div class="flex justify-between py-2">
+        <span class="text-sm" style="color:var(--color-on-surface-variant)">Loyalty Points</span>
+        <span class="font-mono text-sm font-bold">${me.loyalty_points || 0}</span>
+      </div>
+    `;
+    
+  } catch (err) {
+    console.error('Error loading profile:', err);
+    errorEl.textContent = 'Failed to load profile: ' + err.message;
+    card.innerHTML = '<p class="text-sm" style="color:var(--color-on-surface-variant)">Unable to load profile data.</p>';
+  }
+}
 </script>
 </body>
 </html>
