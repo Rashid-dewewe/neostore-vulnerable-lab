@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Cart | NeoStore</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
 <link href="/css/tokens.css" rel="stylesheet"/>
 </head>
 <body>
@@ -13,7 +12,7 @@
 
 <main class="max-w-4xl mx-auto px-6 py-12">
   <h1 class="font-display text-2xl font-bold mb-6">Your Cart</h1>
-  <div id="cart-list" class="flex flex-col gap-3"></div>
+  <div id=\"cart-list\" class="flex flex-col gap-3"></div>
   <div class="flex justify-between items-center mt-6 card p-5">
     <span class="font-medium">Subtotal</span>
     <span id="subtotal" class="font-display text-xl font-semibold">$0.00</span>
@@ -21,48 +20,66 @@
   <a href="/checkout.html" class="btn-primary inline-block mt-5">Proceed to checkout</a>
 
   <details class="mt-12 card p-5">
-    <summary class="cursor-pointer font-mono text-xs" style="color:var(--color-on-surface-variant)">Shared cart link lookup (debug)</summary>
-    <p class="text-sm mt-3" style="color:var(--color-on-surface-variant)">
-      Paste any cart ID to view it via <code class="font-mono">GET /api/cart/:cartId</code>.
-      <span class="vuln-flag">VULN: BOLA/IDOR — try a small integer like 1, 2, 3</span>
-    </p>
-    <div class="flex gap-2 mt-3">
-      <input id="cart-id-input" class="input max-w-[160px]" placeholder="cart id"/>
-      <button id="cart-id-btn" class="btn-secondary">Look up</button>
+    <summary class="cursor-pointer font-mono text-xs" style="color:var(--color-on-surface-variant)">Inspect another shopper's cart via BOLA / IDOR (debug)</summary>
+    <div class="mt-4 flex gap-2">
+      <input id="cart-id-input" class="input max-w-xs font-mono text-sm" placeholder="Sequential Cart ID (e.g., 1, 2)"/>
+      <button id="cart-id-btn" class="btn-secondary">Inspect Cart Entity</button>
     </div>
-    <pre id="cart-id-result" class="mt-3 text-xs font-mono whitespace-pre-wrap"></pre>
+    <pre id="cart-id-result" class="text-xs font-mono mt-4 p-3 bg-neutral-900 text-green-400 rounded-md overflow-x-auto whitespace-pre-wrap"></pre>
   </details>
 </main>
 
 <script src="/js/api.js"></script>
 <script>
 renderNav();
-if (!requireLoginOrRedirect()) { /* redirected */ }
 
-let currentItems = [];
-
-function itemRow(item) {
-  return `
-    <div class="card p-4 flex items-center gap-4" data-item-id="${item.item_id}">
-      <img src="${item.image_url}" class="w-16 h-16 object-cover rounded"/>
-      <div class="flex-1">
-        <div class="font-medium">${item.name}</div>
-        <div class="text-sm font-mono" style="color:var(--color-on-surface-variant)">${money(item.price)} each</div>
-      </div>
-      <input type="number" value="${item.quantity}" class="input w-20 qty-input" data-item-id="${item.item_id}"/>
-      <button class="btn-danger remove-btn" data-item-id="${item.item_id}">Remove</button>
-    </div>`;
+// Strict client-side authentication guard layer
+if (!Auth.isLoggedIn()) {
+  toast('Please log in to view your cart items.', 'error');
+  setTimeout(() => {
+    window.location.href = '/login.html';
+  }, 1200);
+} else {
+  loadCartAndStash();
 }
 
 async function loadCart() {
-  const data = await api('/cart');
-  currentItems = data.items;
-  document.getElementById('cart-list').innerHTML = currentItems.length
-    ? currentItems.map(itemRow).join('')
-    : '<p style="color:var(--color-on-surface-variant)">Your cart is empty. <a href="/index.html" class="underline">Browse products</a>.</p>';
-  const subtotal = currentItems.reduce((s, i) => s + i.price * i.quantity, 0);
+  try {
+    const data = await api('/cart');
+    renderCartList(data.items);
+  } catch (err) {
+    document.getElementById('cart-list').innerHTML = `<p style="color:var(--color-error)">${err.message}</p>`;
+  }
+}
+
+function renderCartList(items) {
+  const container = document.getElementById('cart-list');
+  if (!items || !items.length) {
+    container.innerHTML = '<p style="color:var(--color-on-surface-variant)">Your cart is empty.</p>';
+    document.getElementById('subtotal').textContent = money(0);
+    return;
+  }
+
+  container.innerHTML = items.map(item => `
+    <div class="card p-4 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <img src="${item.image_url}" class="w-16 h-16 object-cover rounded" style="background:var(--color-surface-container-low)"/>
+        <div>
+          <h3 class="font-medium">${item.name}</h3>
+          <p class="text-sm" style="color:var(--color-on-surface-variant)">${money(item.price)} each</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <input type="number" value="${item.quantity}" min="1" max="${item.stock}" data-item-id="${item.item_id}" class="qty-input input w-20 text-center"/>
+        <button data-item-id="${item.item_id}" class="remove-btn btn-danger text-xs !py-1.5">Remove</button>
+      </div>
+    </div>
+  `).join('');
+
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   document.getElementById('subtotal').textContent = money(subtotal);
 
+  // Re-bind listeners to mutant actions
   document.querySelectorAll('.qty-input').forEach(input => {
     input.addEventListener('change', async (e) => {
       const itemId = e.target.dataset.itemId;
@@ -70,15 +87,23 @@ async function loadCart() {
       try {
         await api(`/cart/items/${itemId}`, { method: 'PUT', body: { quantity } });
         toast('Quantity updated', 'success');
-        loadCart();
-      } catch (err) { toast(err.message, 'error'); }
+        loadCartAndStash();
+      } catch (err) { 
+        toast(err.message, 'error'); 
+      }
     });
   });
+
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       const itemId = e.target.dataset.itemId;
-      await api(`/cart/items/${itemId}`, { method: 'DELETE' });
-      loadCart();
+      try {
+        await api(`/cart/items/${itemId}`, { method: 'DELETE' });
+        toast('Item removed from cart', 'success');
+        loadCartAndStash();
+      } catch (err) {
+        toast(err.message, 'error');
+      }
     });
   });
 }
@@ -95,12 +120,13 @@ document.getElementById('cart-id-btn').addEventListener('click', async () => {
 
 async function loadCartAndStash() {
   await loadCart();
-  // Stash the loaded cart (including per-item price) for checkout.html to
-  // read. This is exactly the kind of client-trusted state that feeds the
-  // price-manipulation vulnerability in POST /api/checkout.
-  sessionStorage.setItem('neostore_checkout_items', JSON.stringify(currentItems));
+  try {
+    const data = await api('/cart');
+    sessionStorage.setItem('neostore_checkout_items', JSON.stringify(data.items || []));
+  } catch (e) {
+    console.error('Failed to stash items state:', e);
+  }
 }
-loadCartAndStash();
 </script>
 </body>
 </html>
