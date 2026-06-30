@@ -33,23 +33,63 @@ async function load() {
           <div class="mt-6 font-display text-3xl font-semibold">${money(p.price)}</div>
           <div class="mt-1 text-sm" style="color:var(--color-on-surface-variant)">${p.stock} in stock</div>
           <div class="mt-6 flex items-center gap-3">
-            <input id="qty" type="number" value="1" min="1" class="input w-24"/>
+            <input id="qty" type="number" value="1" min="1" max="${p.stock}" class="input w-24"/>
             <button id="add-btn" class="btn-primary">Add to cart</button>
           </div>
+          <div id="cart-message" class="mt-4 text-sm"></div>
         </div>
       </div>`;
-    document.getElementById('add-btn').addEventListener('click', async () => {
-      if (!requireLoginOrRedirect()) return;
-      const quantity = Number(document.getElementById('qty').value);
+    
+    // Add event listener for the add to cart button
+    document.getElementById('add-btn').addEventListener('click', async function() {
+      const messageEl = document.getElementById('cart-message');
+      
+      // Check if user is logged in
+      if (!Auth.isLoggedIn()) {
+        messageEl.style.color = 'var(--color-error)';
+        messageEl.textContent = 'Please log in first! Redirecting...';
+        toast('Please log in first', 'error');
+        setTimeout(() => {
+          window.location.href = '/login.html';
+        }, 1500);
+        return;
+      }
+      
+      const quantity = parseInt(document.getElementById('qty').value);
+      if (quantity < 1 || quantity > p.stock) {
+        messageEl.style.color = 'var(--color-error)';
+        messageEl.textContent = `Please enter a quantity between 1 and ${p.stock}`;
+        return;
+      }
+      
       try {
-        await api('/cart/items', { method: 'POST', body: { product_id: p.id, quantity } });
-        toast('Added to cart', 'success');
-      } catch (e) { toast(e.message, 'error'); }
+        messageEl.textContent = 'Adding to cart...';
+        messageEl.style.color = 'var(--color-on-surface-variant)';
+        
+        await api('/cart/items', { 
+          method: 'POST', 
+          body: { product_id: p.id, quantity: quantity } 
+        });
+        
+        messageEl.style.color = 'var(--color-success)';
+        messageEl.textContent = `✓ Added ${quantity} item(s) to cart!`;
+        toast('Added to cart successfully!', 'success');
+        
+        // Update the quantity input to show it was added
+        document.getElementById('qty').value = 1;
+        
+      } catch (e) {
+        messageEl.style.color = 'var(--color-error)';
+        messageEl.textContent = 'Error: ' + e.message;
+        toast(e.message, 'error');
+      }
     });
+    
   } catch (e) {
-    document.getElementById('content').innerHTML = `<p>${e.message}</p>`;
+    document.getElementById('content').innerHTML = `<p style="color:var(--color-error)">Error loading product: ${e.message}</p>`;
   }
 }
+
 load();
 </script>
 </body>
