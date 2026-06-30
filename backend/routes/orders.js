@@ -12,10 +12,9 @@ router.get('/', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
-// Chained Advanced Vulnerability: Unverified signature + BOLA/IDOR
 router.get('/:id', resolveInternalSession, async (req, res) => {
   const [rows] = await pool.query(
-    `SELECT o.*, u.email AS customer_email, u.full_name AS customer_name
+    `SELECT o.*, u.email AS customer_email, u.full_name AS customer_name, u.phone AS customer_phone, u.internal_notes
      FROM orders o JOIN users u ON u.id = o.user_id
      WHERE o.id = ?`,
     [req.params.id]

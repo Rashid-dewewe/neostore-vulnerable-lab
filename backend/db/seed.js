@@ -1,12 +1,9 @@
-// Seeds the lab with demo categories, products, users, coupons.
-// Run with: npm run seed   (after schema.sql has been applied)
 const bcrypt = require('bcryptjs');
 const pool = require('./pool');
 
 async function seed() {
   const conn = await pool.getConnection();
   try {
-    console.log('Seeding categories...');
     const categories = ['Electronics', 'Home & Kitchen', 'Apparel', 'Outdoors'];
     const categoryIds = {};
     for (const name of categories) {
@@ -18,7 +15,6 @@ async function seed() {
       categoryIds[name] = res.insertId;
     }
 
-    console.log('Seeding products...');
     const products = [
       ['NEO-AUD-001', 'Aurora Wireless Headphones', 'Studio-grade ANC headphones with 40h battery life.', 'Electronics', 179.99, 64.0, 42, 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600'],
       ['NEO-WAT-002', 'Pulse Fitness Watch', 'GPS fitness watch with heart-rate and sleep tracking.', 'Electronics', 129.5, 41.0, 8, 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'],
@@ -30,8 +26,6 @@ async function seed() {
       ['NEO-PCK-008', 'Trailhead 32L Daypack', 'Lightweight daypack with hydration sleeve.', 'Outdoors', 89.0, 29.0, 4, 'https://images.unsplash.com/photo-1622260614153-03223fb72052?w=600'],
       ['NEO-LMP-009', 'Halo Desk Lamp', 'Dimmable LED desk lamp with USB-C passthrough.', 'Home & Kitchen', 59.0, 18.0, 54, 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600'],
       ['NEO-SNK-010', 'Velocity Running Shoe', 'Responsive foam midsole, breathable knit upper.', 'Apparel', 134.0, 47.0, 31, 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600'],
-      // VULN(business-logic): this item has a tiny stock count, perfect for
-      // demonstrating a stock-decrement race condition during checkout.
       ['NEO-LTD-011', 'Eclipse Limited Edition Sneaker', 'Limited drop, 3 units only.', 'Apparel', 299.0, 110.0, 3, 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600'],
     ];
 
@@ -46,16 +40,12 @@ async function seed() {
       productIds[sku] = res.insertId;
     }
 
-    console.log('Seeding users...');
     const pass = (plain) => bcrypt.hashSync(plain, 10);
     const users = [
-      // [email, password, full_name, role, phone, loyalty_points, internal_notes]
       ['alice@example.com', 'Password123!', 'Alice Chen', 'customer', '555-0101', 320, null],
       ['bob@example.com', 'Password123!', 'Bob Martinez', 'customer', '555-0102', 75, null],
       ['carol@example.com', 'Password123!', 'Carol Singh', 'customer', '555-0103', 1450, null],
       ['support@neostore.test', 'Support123!', 'Dana Reyes (Support)', 'support', '555-0900', 0, 'L1 support agent - order lookups only'],
-      // VULN(broken-authentication/access-control): predictable admin account
-      // used throughout the lab as the privilege-escalation target.
       ['admin@neostore.test', 'Admin123!', 'NeoStore Admin', 'admin', '555-0001', 0, 'Root store administrator'],
     ];
     const userIds = {};
@@ -68,7 +58,6 @@ async function seed() {
       userIds[email] = res.insertId;
     }
 
-    console.log('Seeding addresses...');
     await conn.query(
       `INSERT INTO addresses (user_id, label, line1, city, state, postal_code, country) VALUES
        (?, 'Home', '482 Birchwood Ave', 'Austin', 'TX', '78701', 'USA'),
@@ -77,7 +66,6 @@ async function seed() {
       [userIds['alice@example.com'], userIds['bob@example.com'], userIds['carol@example.com']]
     );
 
-    console.log('Seeding coupons...');
     await conn.query(
       `INSERT INTO coupons (code, percent_off, max_uses, times_used, active) VALUES
        ('WELCOME10', 10, 1000, 0, 1),
@@ -85,7 +73,6 @@ async function seed() {
        ('VIP50', 50, 5, 0, 1)`
     );
 
-    console.log('Seeding a couple of past orders for Alice...');
     const [orderRes] = await conn.query(
       `INSERT INTO orders (order_number, user_id, status, subtotal, discount, total, coupon_code, shipping_address, payment_last4)
        VALUES ('NEO-100001', ?, 'delivered', 179.99, 0, 179.99, NULL, '482 Birchwood Ave, Austin, TX 78701', '4242')`,
@@ -97,11 +84,6 @@ async function seed() {
       [orderRes.insertId, productIds['NEO-AUD-001']]
     );
 
-    console.log('Seed complete.');
-    console.log('Demo accounts:');
-    for (const [email, plain, , role] of users) {
-      console.log(`  ${role.padEnd(8)} ${email.padEnd(28)} / ${plain}`);
-    }
   } finally {
     conn.release();
     await pool.end();
@@ -109,6 +91,5 @@ async function seed() {
 }
 
 seed().catch((err) => {
-  console.error('Seed failed:', err);
   process.exit(1);
 });

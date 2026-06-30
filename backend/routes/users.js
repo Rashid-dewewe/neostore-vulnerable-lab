@@ -15,7 +15,6 @@ router.get('/:id/addresses', requireAuth, async (req, res) => {
   res.json(rows);
 });
 
-// Advanced Mass-Assignment + Hidden Attribute Overwrite
 router.put('/:id', requireAuth, async (req, res) => {
   const patchSchema = ['full_name', 'phone', 'role', 'loyalty_points']; 
   const updates = req.body;

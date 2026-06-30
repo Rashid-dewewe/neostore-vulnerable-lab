@@ -14,24 +14,6 @@
 <main class="max-w-3xl mx-auto px-6 py-12">
   <h1 class="font-display text-2xl font-bold mb-6">Your orders</h1>
   <div id="order-list" class="flex flex-col gap-2"></div>
-
-  <details class="mt-10 card p-5" open>
-    <summary class="cursor-pointer font-mono text-xs" style="color:var(--color-on-surface-variant)">Look up any order by ID (debug)</summary>
-    <p class="text-sm mt-3" style="color:var(--color-on-surface-variant)">
-      Calls <code class="font-mono">GET /api/orders/&lt;id&gt;</code>, which uses the legacy decode-only auth
-      middleware and never checks order ownership.
-      <span class="vuln-flag block mt-2 w-fit">VULN: BOLA/IDOR + unverified JWT — try order id 1</span>
-    </p>
-    <input id="lookup-id" class="input mt-3 max-w-[140px]" placeholder="order id"/>
-    <button id="lookup-btn" class="btn-secondary mt-2">Look up</button>
-    <pre id="lookup-result" class="text-xs font-mono mt-3 whitespace-pre-wrap"></pre>
-
-    <p class="text-sm mt-4" style="color:var(--color-on-surface-variant)">
-      Or try a fully forged token (no valid signature needed against this route) —
-      paste it below to override your Authorization header for the lookup above:
-    </p>
-    <input id="forged-token" class="input mt-2 font-mono text-xs" placeholder="forged JWT (header.payload.sig)"/>
-  </details>
 </main>
 
 <script src="/js/api.js"></script>
@@ -62,23 +44,6 @@ async function load() {
   }));
 }
 load();
-
-document.getElementById('lookup-btn').addEventListener('click', async () => {
-  const id = document.getElementById('lookup-id').value;
-  const forged = document.getElementById('forged-token').value.trim();
-  try {
-    let data;
-    if (forged) {
-      const res = await fetch(`/api/orders/${id}`, { headers: { Authorization: `Bearer ${forged}` } });
-      data = await res.json();
-    } else {
-      data = await api(`/orders/${id}`);
-    }
-    document.getElementById('lookup-result').textContent = JSON.stringify(data, null, 2);
-  } catch (e) {
-    document.getElementById('lookup-result').textContent = e.message;
-  }
-});
 </script>
 </body>
 </html>

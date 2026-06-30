@@ -14,29 +14,6 @@
 <main class="max-w-2xl mx-auto px-6 py-12">
   <h1 class="font-display text-2xl font-bold mb-6">Your profile</h1>
   <div id="profile-card" class="card p-5"></div>
-
-  <details class="mt-10 card p-5" open>
-    <summary class="cursor-pointer font-mono text-xs" style="color:var(--color-on-surface-variant)">Raw profile update (debug)</summary>
-    <p class="text-sm mt-3" style="color:var(--color-on-surface-variant)">
-      Sends a raw JSON body to <code class="font-mono">PUT /api/users/&lt;id&gt;</code>.
-      <span class="vuln-flag block mt-2 w-fit">VULN: mass assignment — try {"role":"admin"} on your own id</span>
-    </p>
-    <input id="target-id" class="input mt-3 max-w-[140px]" placeholder="user id"/>
-    <textarea id="raw-body" class="input mt-2 font-mono text-xs h-28" placeholder='{"role":"admin"}'></textarea>
-    <button id="raw-submit" class="btn-secondary mt-2">Send PUT</button>
-    <pre id="raw-result" class="text-xs font-mono mt-3 whitespace-pre-wrap"></pre>
-  </details>
-
-  <details class="mt-6 card p-5">
-    <summary class="cursor-pointer font-mono text-xs" style="color:var(--color-on-surface-variant)">Look up another user (debug)</summary>
-    <p class="text-sm mt-3" style="color:var(--color-on-surface-variant)">
-      Calls <code class="font-mono">GET /api/users/&lt;id&gt;</code> — note the response includes password_hash.
-      <span class="vuln-flag block mt-2 w-fit">VULN: BOLA/IDOR + sensitive data exposure</span>
-    </p>
-    <input id="lookup-id" class="input mt-3 max-w-[140px]" placeholder="user id"/>
-    <button id="lookup-btn" class="btn-secondary mt-2">Look up</button>
-    <pre id="lookup-result" class="text-xs font-mono mt-3 whitespace-pre-wrap"></pre>
-  </details>
 </main>
 
 <script src="/js/api.js"></script>
@@ -44,7 +21,6 @@
 renderNav();
 if (!requireLoginOrRedirect()) {}
 const user = Auth.getUser();
-document.getElementById('target-id').value = user.id;
 
 async function load() {
   const me = await api(`/users/${user.id}`);
@@ -56,25 +32,6 @@ async function load() {
   `;
 }
 load();
-
-document.getElementById('raw-submit').addEventListener('click', async () => {
-  try {
-    const body = JSON.parse(document.getElementById('raw-body').value || '{}');
-    const data = await api(`/users/${document.getElementById('target-id').value}`, { method: 'PUT', body });
-    document.getElementById('raw-result').textContent = JSON.stringify(data, null, 2);
-    if (Number(document.getElementById('target-id').value) === user.id) {
-      Auth.setSession(Auth.getToken(), { ...user, ...data });
-      load();
-    }
-  } catch (e) { document.getElementById('raw-result').textContent = e.message; }
-});
-
-document.getElementById('lookup-btn').addEventListener('click', async () => {
-  try {
-    const data = await api(`/users/${document.getElementById('lookup-id').value}`);
-    document.getElementById('lookup-result').textContent = JSON.stringify(data, null, 2);
-  } catch (e) { document.getElementById('lookup-result').textContent = e.message; }
-});
 </script>
 </body>
 </html>

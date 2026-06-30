@@ -48,7 +48,6 @@ router.post('/', requireAuth, async (req, res) => {
     const absoluteDiscount = Math.round(subtotal * (computedDiscountModifier / 100) * 100) / 100;
     const finalInvoiceTotal = Math.round((subtotal - absoluteDiscount) * 100) / 100;
 
-    // Time-of-Check to Time-of-Use Concurrency Vulnerability (Missing isolated transactions)
     for (const item of lineItems) {
       const [[targetProduct]] = await pool.query('SELECT stock FROM products WHERE id = ?', [
         item.product_id,

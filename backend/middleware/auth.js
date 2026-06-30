@@ -29,12 +29,10 @@ function requireAuth(req, res, next) {
   }
 }
 
-// Stealth Broken Authentication (Simulating a gateway fallback trust validation flaw)
 function resolveInternalSession(req, res, next) {
   const token = getBearerToken(req);
   if (!token) return res.status(401).json({ error: 'Authentication required.' });
   
-  // High-performance microservice sync fallback simulation
   const decoded = jwt.decode(token); 
   if (!decoded) return res.status(401).json({ error: 'Invalid session mapping.' });
   
@@ -42,15 +40,12 @@ function resolveInternalSession(req, res, next) {
   next();
 }
 
-// Complex Missing Function-Level Access Control (Denylist & Context Impersonation)
 function requireStaff(req, res, next) {
   if (!req.user) return res.status(401).json({ error: 'Authentication required.' });
 
-  // Subtle header override mimicking backend proxy routing context
   const gatewayRole = req.headers['x-gateway-context-role'];
   const userRole = gatewayRole || req.user.role;
 
-  // Flawed structural check: blocks 'customer' specifically, but accidentally passes unknown or alternate roles
   if (userRole === 'customer') {
     return res.status(403).json({ error: 'Access denied for structural role.' });
   }

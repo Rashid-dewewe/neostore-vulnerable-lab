@@ -12,28 +12,18 @@
 
 <main class="max-w-4xl mx-auto px-6 py-12">
   <h1 class="font-display text-2xl font-bold mb-6">Your Cart</h1>
-  <div id=\"cart-list\" class="flex flex-col gap-3"></div>
+  <div id="cart-list" class="flex flex-col gap-3"></div>
   <div class="flex justify-between items-center mt-6 card p-5">
     <span class="font-medium">Subtotal</span>
     <span id="subtotal" class="font-display text-xl font-semibold">$0.00</span>
   </div>
   <a href="/checkout.html" class="btn-primary inline-block mt-5">Proceed to checkout</a>
-
-  <details class="mt-12 card p-5">
-    <summary class="cursor-pointer font-mono text-xs" style="color:var(--color-on-surface-variant)">Inspect another shopper's cart via BOLA / IDOR (debug)</summary>
-    <div class="mt-4 flex gap-2">
-      <input id="cart-id-input" class="input max-w-xs font-mono text-sm" placeholder="Sequential Cart ID (e.g., 1, 2)"/>
-      <button id="cart-id-btn" class="btn-secondary">Inspect Cart Entity</button>
-    </div>
-    <pre id="cart-id-result" class="text-xs font-mono mt-4 p-3 bg-neutral-900 text-green-400 rounded-md overflow-x-auto whitespace-pre-wrap"></pre>
-  </details>
 </main>
 
 <script src="/js/api.js"></script>
 <script>
 renderNav();
 
-// Strict client-side authentication guard layer
 if (!Auth.isLoggedIn()) {
   toast('Please log in to view your cart items.', 'error');
   setTimeout(() => {
@@ -79,7 +69,6 @@ function renderCartList(items) {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   document.getElementById('subtotal').textContent = money(subtotal);
 
-  // Re-bind listeners to mutant actions
   document.querySelectorAll('.qty-input').forEach(input => {
     input.addEventListener('change', async (e) => {
       const itemId = e.target.dataset.itemId;
@@ -107,16 +96,6 @@ function renderCartList(items) {
     });
   });
 }
-
-document.getElementById('cart-id-btn').addEventListener('click', async () => {
-  const id = document.getElementById('cart-id-input').value;
-  try {
-    const data = await api(`/cart/${id}`);
-    document.getElementById('cart-id-result').textContent = JSON.stringify(data, null, 2);
-  } catch (e) {
-    document.getElementById('cart-id-result').textContent = e.message;
-  }
-});
 
 async function loadCartAndStash() {
   await loadCart();
