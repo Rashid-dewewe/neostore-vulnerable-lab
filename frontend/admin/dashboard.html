@@ -592,19 +592,21 @@
 
     <script src="/js/api.js"></script>
     <script>
-        // Check if user is admin
-        const user = Auth.getUser();
-        if (!user || (user.role !== 'admin' && user.role !== 'support')) {
-            toast('Access denied. Admin privileges required.', 'error');
-            setTimeout(() => {
-                window.location.href = '/index.html';
-            }, 2000);
-        }
+      const user = Auth.getUser();
+      console.log('Current user:', user);
 
-        // Set user info
-        document.getElementById('admin-name').textContent = user ? user.full_name : 'Admin';
-        document.getElementById('admin-avatar').textContent = user ? user.full_name.charAt(0) : 'A';
-
+      // Check if user is admin
+      if (!user || (user.role !== 'admin' && user.role !== 'support')) {
+          toast('Access denied. Admin privileges required.', 'error');
+          setTimeout(() => {
+              window.location.href = '/index.html';
+          }, 2000);
+      } else {
+          // User is admin, load the dashboard
+          document.getElementById('admin-name').textContent = user.full_name || 'Admin';
+          document.getElementById('admin-avatar').textContent = user.full_name ? user.full_name.charAt(0).toUpperCase() : 'A';
+          // Load all data...
+      }
         // Navigation
         document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
             item.addEventListener('click', function() {

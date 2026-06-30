@@ -1,20 +1,37 @@
 const API_BASE = '/api';
 
 const Auth = {
-  getToken() { return localStorage.getItem('neostore_token'); },
+  getToken() { 
+    return localStorage.getItem('neostore_token'); 
+  },
   setSession(token, user) {
     localStorage.setItem('neostore_token', token);
     localStorage.setItem('neostore_user', JSON.stringify(user));
+    console.log('Session stored:', { token, user });
   },
   getUser() {
-    try { return JSON.parse(localStorage.getItem('neostore_user')); } catch { return null; }
+    try { 
+      const user = JSON.parse(localStorage.getItem('neostore_user')); 
+      console.log('Retrieved user:', user);
+      return user;
+    } catch { 
+      return null; 
+    }
   },
   logout() {
     localStorage.removeItem('neostore_token');
     localStorage.removeItem('neostore_user');
     window.location.href = '/index.html';
   },
-  isLoggedIn() { return !!this.getToken(); },
+  isLoggedIn() { 
+    const token = this.getToken();
+    const user = this.getUser();
+    return !!token && !!user; 
+  },
+  isAdmin() {
+    const user = this.getUser();
+    return user && (user.role === 'admin' || user.role === 'support');
+  }
 };
 
 async function api(path, { method = 'GET', body, headers = {} } = {}) {
@@ -73,9 +90,9 @@ function renderNav() {
         <a href=\"/cart.html\" class=\"hover:text-[var(--color-primary)]\">Cart</a>
         ${loggedIn ? `<a href=\"/orders.html\" class=\"hover:text-[var(--color-primary)]\">Orders</a>` : ''}
         ${loggedIn ? `<a href=\"/profile.html\" class=\"hover:text-[var(--color-primary)]\">Profile</a>` : ''}
-        ${isStaff ? `<a href=\"/admin/dashboard.html\" class=\"font-mono text-xs badge badge-neutral\">ADMIN</a>` : ''}
+        ${isStaff ? `<a href=\"/admin/dashboard.html\" class=\"font-mono text-xs badge badge-neutral\" style=\"background:var(--color-primary);color:white;\">ADMIN</a>` : ''}
         ${loggedIn
-          ? `<button id=\"nav-logout\" class=\"btn-secondary !py-1.5 !px-3 text-xs\">Log out (${user.full_name.split(' ')[0]})</button>`
+          ? `<button id=\"nav-logout\" class=\"btn-secondary !py-1.5 !px-3 text-xs\">Log out (${user ? user.full_name.split(' ')[0] : 'User'})</button>`
           : `<a href=\"/login.html\" class=\"btn-primary !py-1.5 !px-3 text-xs\">Log in</a>`}
       </div>
     </div>`;
