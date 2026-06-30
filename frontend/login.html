@@ -34,10 +34,19 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   try {
     const data = await api('/auth/login', {
       method: 'POST',
-      body: { email: document.getElementById('email').value, password: document.getElementById('password').value }
+      body: { 
+        email: document.getElementById('email').value, 
+        password: document.getElementById('password').value 
+      }
     });
     Auth.setSession(data.token, data.user);
-    window.location.href = '/index.html';
+    
+    // Redirect based on user role
+    if (data.user.role === 'admin' || data.user.role === 'support') {
+      window.location.href = '/admin/dashboard.html';
+    } else {
+      window.location.href = '/index.html';
+    }
   } catch (err) {
     document.getElementById('error').textContent = err.message;
   }
