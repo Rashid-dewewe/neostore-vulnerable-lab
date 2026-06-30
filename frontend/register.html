@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Register | NeoStore</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
 <link href="/css/tokens.css" rel="stylesheet"/>
 </head>
 <body>
@@ -13,13 +12,16 @@
 
 <main class="max-w-sm mx-auto px-6 py-16">
   <h1 class="font-display text-2xl font-bold mb-1">Create your account</h1>
-  <form id="register-form" class="flex flex-col gap-3 mt-6">
-    <input id="full_name" required class="input" placeholder="Full name"/>
+  <p class="text-sm mb-6" style="color:var(--color-on-surface-variant)">Join the NeoStore platform today.</p>
+
+  <form id="register-form" class="flex flex-col gap-3">
+    <input id="full_name" type="text" required class="input" placeholder="Full name"/>
     <input id="email" type="email" required class="input" placeholder="Email"/>
-    <input id="phone" class="input" placeholder="Phone (optional)"/>
+    <input id="phone" type="tel" class="input" placeholder="Phone (optional)"/>
     <input id="password" type="password" required class="input" placeholder="Password"/>
     <button type="submit" class="btn-primary mt-2">Create account</button>
   </form>
+  
   <p id="error" class="text-sm mt-3" style="color:var(--color-error)"></p>
   <p class="text-sm mt-6">Already have an account? <a href="/login.html" class="underline">Log in</a></p>
 </main>
@@ -27,21 +29,31 @@
 <script src="/js/api.js"></script>
 <script>
 renderNav();
+
 document.getElementById('register-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   document.getElementById('error').textContent = '';
+  
+  const payload = {
+    full_name: document.getElementById('full_name').value,
+    email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value || null,
+    password: document.getElementById('password').value
+  };
+
   try {
     const data = await api('/auth/register', {
       method: 'POST',
-      body: {
-        full_name: document.getElementById('full_name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        password: document.getElementById('password').value,
-      },
+      body: payload
     });
+    
     Auth.setSession(data.token, data.user);
-    location.href = '/index.html';
+    toast('Registration successful!', 'success');
+    
+    setTimeout(() => {
+      window.location.href = '/index.html';
+    }, 1000);
+    
   } catch (err) {
     document.getElementById('error').textContent = err.message;
   }

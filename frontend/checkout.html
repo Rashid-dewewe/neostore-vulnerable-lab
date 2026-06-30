@@ -5,66 +5,59 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Checkout | NeoStore</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
 <link href="/css/tokens.css" rel="stylesheet"/>
 </head>
 <body>
 <nav id="site-nav" class="border-b" style="border-color:var(--color-outline);background:var(--color-surface-container-lowest)"></nav>
 
 <main class="max-w-3xl mx-auto px-6 py-12">
-  <h1 class="font-display text-2xl font-bold mb-2">Checkout</h1>
-  <p class="text-sm mb-6" style="color:var(--color-on-surface-variant)">
-    Line-item prices below are editable on purpose.
-    <span class="vuln-flag">VULN: price-manipulation — server trusts these values</span>
-  </p>
+  <h1 class="font-display text-2xl font-bold mb-6">Checkout Verification</h1>
 
   <div id="items" class="flex flex-col gap-2 mb-6"></div>
 
   <div class="card p-5 flex flex-col gap-3">
     <label class="text-sm font-medium">Shipping address</label>
-    <input id="address" class="input" placeholder="123 Main St, Austin, TX 78701"/>
-    <label class="text-sm font-medium mt-2">Card number (any digits)</label>
-    <input id="card" class="input" placeholder="4242 4242 4242 4242" value="4242424242424242"/>
-    <label class="text-sm font-medium mt-2">Coupon code(s), comma separated</label>
-    <input id="coupon" class="input" placeholder="e.g. VIP50, VIP50  (try reusing the same code!)"/>
-  </div>
+    <input id="address" required class="input mb-2" placeholder="123 Security Blvd, Cyber City"/>
 
-  <div class="card p-5 mt-4 flex flex-col gap-1 text-sm font-mono">
-    <div class="flex justify-between"><span>Subtotal</span><span id="sum-subtotal">$0.00</span></div>
-  </div>
+    <label class="text-sm font-medium">Promo Voucher Code</label>
+    <input id="coupon" class="input mb-2" placeholder="e.g. SAVE10"/>
 
-  <button id="place-order" class="btn-primary mt-6 w-full">Place order</button>
-  <pre id="result" class="mt-5 text-xs font-mono whitespace-pre-wrap"></pre>
+    <label class="text-sm font-medium">Payment Details</label>
+    <input id="card" required class="input" placeholder="4111 2222 3333 4444"/>
+    
+    <div class="flex justify-between items-center border-t pt-4 mt-2">
+      <span class="text-sm font-medium">Total Billable Amount</span>
+      <span id="sum-subtotal" class="font-display text-lg font-bold">$0.00</span>
+    </div>
+
+    <button id="place-order" class="btn-primary mt-4 w-full">Finalize Purchase Order</button>
+    <pre id="result" class="text-xs font-mono mt-4 text-emerald-600 whitespace-pre-wrap"></pre>
+  </div>
 </main>
 
 <script src="/js/api.js"></script>
 <script>
 renderNav();
-if (!requireLoginOrRedirect()) {}
-
-let items = JSON.parse(sessionStorage.getItem('neostore_checkout_items') || '[]');
-if (!items.length) {
-  document.getElementById('items').innerHTML = '<p>Your cart is empty. <a href="/index.html" class="underline">Go shopping</a>.</p>';
-}
+let items = [];
+try {
+  items = JSON.parse(sessionStorage.getItem('neostore_checkout_items')) || [];
+} catch {}
 
 function renderItems() {
-  document.getElementById('items').innerHTML = items.map((it, idx) => `
-    <div class="card p-4 flex items-center gap-4">
-      <div class="flex-1">
-        <div class="font-medium">${it.name}</div>
-        <div class="text-xs font-mono" style="color:var(--color-on-surface-variant)">qty</div>
+  const container = document.getElementById('items');
+  if(!items.length) {
+    container.innerHTML = `<p class="text-sm text-neutral-500">Order buffer clear.</p>`;
+    return;
+  }
+  container.innerHTML = items.map((item, idx) => `
+    <div class="card p-4 flex justify-between items-center" data-idx="${idx}" data-price="${item.price}" data-pid="${item.product_id}" data-name="${item.name}">
+      <div>
+        <div class="font-medium text-sm">${item.name}</div>
+        <div class="text-xs text-neutral-400">Qty: ${item.quantity}</div>
       </div>
-      <input type="number" class="input w-20 qty" data-idx="${idx}" value="${it.quantity}"/>
-      <div class="text-xs font-mono" style="color:var(--color-on-surface-variant)">unit price</div>
-      <input type="number" step="0.01" class="input w-24 price" data-idx="${idx}" value="${it.price}"/>
-    </div>`).join('');
-
-  document.querySelectorAll('.qty').forEach(el => el.addEventListener('input', e => {
-    items[e.target.dataset.idx].quantity = Number(e.target.value); updateSubtotal();
-  }));
-  document.querySelectorAll('.price').forEach(el => el.addEventListener('input', e => {
-    items[e.target.dataset.idx].price = Number(e.target.value); updateSubtotal();
-  }));
+      <span class="text-sm font-semibold">${money(item.price * item.quantity)}</span>
+    </div>
+  `).join('');
   updateSubtotal();
 }
 
@@ -89,12 +82,11 @@ document.getElementById('place-order').addEventListener('click', async () => {
         payment: { card_number: document.getElementById('card').value },
       },
     });
-    document.getElementById('result').textContent = JSON.stringify(order, null, 2);
+    document.getElementById('result').textContent = `Order ${order.order_number} Processed successfully. Total charged: ${money(order.total)}`;
     sessionStorage.removeItem('neostore_checkout_items');
-    toast(`Order ${order.order_number} placed — total ${money(order.total)}`, 'success');
-    setTimeout(() => location.href = `/orders.html`, 1200);
+    toast(`Order complete`, 'success');
   } catch (e) {
-    toast(e.message, 'error');
+    document.getElementById('result').textContent = e.message;
   }
 });
 </script>

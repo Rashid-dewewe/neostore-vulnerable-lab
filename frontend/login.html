@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Log in | NeoStore</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Geist:wght@600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet"/>
 <link href="/css/tokens.css" rel="stylesheet"/>
 </head>
 <body>
@@ -23,14 +22,6 @@
   <p id="error" class="text-sm mt-3" style="color:var(--color-error)"></p>
 
   <a href="/forgot-password.html" class="text-sm underline mt-4 inline-block">Forgot password?</a>
-
-  <div class="card p-4 mt-8 text-xs font-mono leading-relaxed" style="color:var(--color-on-surface-variant)">
-    Demo accounts (seeded by db/seed.js):<br/>
-    customer: alice@example.com / Password123!<br/>
-    support: support@neostore.test / Support123!<br/>
-    admin: admin@neostore.test / Admin123!
-  </div>
-
   <p class="text-sm mt-6">No account? <a href="/register.html" class="underline">Register</a></p>
 </main>
 
@@ -43,10 +34,10 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
   try {
     const data = await api('/auth/login', {
       method: 'POST',
-      body: { email: document.getElementById('email').value, password: document.getElementById('password').value },
+      body: { email: document.getElementById('email').value, password: document.getElementById('password').value }
     });
     Auth.setSession(data.token, data.user);
-    location.href = '/index.html';
+    window.location.href = '/index.html';
   } catch (err) {
     document.getElementById('error').textContent = err.message;
   }

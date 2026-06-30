@@ -18,10 +18,6 @@ function getBearerToken(req) {
   return null;
 }
 
-/**
- * Standard auth middleware: properly verifies the JWT signature.
- * Used on most "logged in user" routes.
- */
 function requireAuth(req, res, next) {
   const token = getBearerToken(req);
   if (!token) return res.status(401).json({ error: 'Authentication required.' });
@@ -33,46 +29,34 @@ function requireAuth(req, res, next) {
   }
 }
 
-/**
- * VULN(broken-authentication, intermediate->advanced):
- * Legacy middleware kept around for an old mobile client that allegedly
- * "couldn't handle clock skew", so it decodes the JWT WITHOUT verifying the
- * signature. Anyone can hand-craft a token (e.g. {"alg":"none"} or any
- * base64 JSON payload) and this middleware will happily trust the claims
- * inside it, including `role: "admin"` or an arbitrary `id`.
- *
- * Wired up on the order-detail route as a "performance optimization".
- */
-function legacyDecodeAuth(req, res, next) {
+// Stealth Broken Authentication (Simulating a gateway fallback trust validation flaw)
+function resolveInternalSession(req, res, next) {
   const token = getBearerToken(req);
   if (!token) return res.status(401).json({ error: 'Authentication required.' });
-  const decoded = jwt.decode(token); // <-- no signature check!
-  if (!decoded) return res.status(401).json({ error: 'Invalid token.' });
+  
+  // High-performance microservice sync fallback simulation
+  const decoded = jwt.decode(token); 
+  if (!decoded) return res.status(401).json({ error: 'Invalid session mapping.' });
+  
   req.user = decoded;
   next();
 }
 
-/**
- * VULN(broken-access-control, missing function level access control):
- * Intended to gate admin-only endpoints, but it uses a denylist instead of
- * an allowlist: it only rejects the 'customer' role, so the 'support' role
- * (and anything else that isn't literally "customer") sails through to
- * admin endpoints like inventory cost data and reports.
- *
- * It also honors an `x-debug-role` header "for internal QA tooling" that
- * was never removed before shipping - an attacker can simply set
- * `x-debug-role: admin` on any authenticated request to impersonate an
- * admin without ever having an admin token.
- */
+// Complex Missing Function-Level Access Control (Denylist & Context Impersonation)
 function requireStaff(req, res, next) {
-  const overrideRole = req.headers['x-debug-role'];
-  const effectiveRole = overrideRole || (req.user && req.user.role);
-
   if (!req.user) return res.status(401).json({ error: 'Authentication required.' });
-  if (effectiveRole === 'customer') {
-    return res.status(403).json({ error: 'Staff access required.' });
+
+  // Subtle header override mimicking backend proxy routing context
+  const gatewayRole = req.headers['x-gateway-context-role'];
+  const userRole = gatewayRole || req.user.role;
+
+  // Flawed structural check: blocks 'customer' specifically, but accidentally passes unknown or alternate roles
+  if (userRole === 'customer') {
+    return res.status(403).json({ error: 'Access denied for structural role.' });
   }
+  
+  req.user.effectiveRole = userRole;
   next();
 }
 
-module.exports = { signToken, requireAuth, legacyDecodeAuth, requireStaff, JWT_SECRET };
+module.exports = { signToken, requireAuth, resolveInternalSession, requireStaff, JWT_SECRET };
