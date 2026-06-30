@@ -1,11 +1,3 @@
-I'll update `SETUP.md` with comprehensive information based on all the enhancements we've made, using `README.md` as a reference.
-
-```bash
-cd /home/unix/e-commerceTask/neostore-vulnerable-lab
-nano SETUP.md
-```
-
-```markdown
 # NeoStore Vulnerable E-Commerce Security Lab — Setup Guide
 
 **Stack:** Node.js + Express API, MySQL/MariaDB database, plain HTML/JS + Tailwind CSS (CDN) frontend served statically by Express. Design tokens are adapted from the Stitch designs you provided.
