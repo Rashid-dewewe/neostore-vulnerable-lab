@@ -1,13 +1,9 @@
-/* ========================================
-   NeoStore Design System
-   ======================================== */
+/* NeoStore Design Syste*/
 
 /* Import tokens */
 @import url('tokens.css');
 
-/* ========================================
-   Global Reset & Base
-   ======================================== */
+/* Global Reset & Bas*/
 * {
     margin: 0;
     padding: 0;
@@ -21,17 +17,13 @@ body {
     min-height: 100vh;
 }
 
-/* ========================================
-   Material Icons (Global)
-   ======================================== */
+/* Material Icons (Global*/
 .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;
 }
 
-/* ========================================
-   Scrollbar
-   ======================================== */
+/* Scrollba*/
 .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
     height: 4px;
@@ -44,9 +36,7 @@ body {
     border-radius: 10px;
 }
 
-/* ========================================
-   Navigation
-   ======================================== */
+/* Navigatio*/
 .site-nav {
     position: fixed;
     top: 0;
@@ -102,9 +92,7 @@ body {
     border-bottom: 2px solid var(--color-primary, #0041c8);
 }
 
-/* ========================================
-   Buttons
-   ======================================== */
+/* Button*/
 .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -166,9 +154,7 @@ body {
     color: white;
 }
 
-/* ========================================
-   Cards
-   ======================================== */
+/* Card*/
 .card {
     background: var(--color-surface-container-lowest, #ffffff);
     border: 1px solid var(--color-outline, #e0e3e5);
@@ -194,9 +180,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 65, 200, 0.08);
 }
 
-/* ========================================
-   Inputs
-   ======================================== */
+/* Input*/
 .input {
     width: 100%;
     padding: 10px 16px;
@@ -214,9 +198,7 @@ body {
     background: white;
 }
 
-/* ========================================
-   Badges
-   ======================================== */
+/* Badge*/
 .badge {
     display: inline-block;
     padding: 4px 12px;
@@ -251,9 +233,7 @@ body {
     color: #495057;
 }
 
-/* ========================================
-   Status Badges (Order/Admin)
-   ======================================== */
+/* Status Badges (Order/Admin*/
 .status-badge {
     padding: 4px 12px;
     border-radius: 20px;
@@ -307,9 +287,7 @@ body {
     color: #495057;
 }
 
-/* ========================================
-   Toast Notifications
-   ======================================== */
+/* Toast Notification*/
 .toast-container {
     position: fixed;
     bottom: 24px;
@@ -355,9 +333,7 @@ body {
     }
 }
 
-/* ========================================
-   Admin Components
-   ======================================== */
+/* Admin Component*/
 .nav-item {
     padding: 10px 16px;
     margin: 4px 12px;
@@ -416,9 +392,7 @@ body {
     transition: width 0.6s ease;
 }
 
-/* ========================================
-   Cart Components
-   ======================================== */
+/* Cart Component*/
 .cart-item {
     transition: all 0.3s ease;
 }
@@ -427,9 +401,7 @@ body {
     border-color: #0041c8;
 }
 
-/* ========================================
-   Checkout Components
-   ======================================== */
+/* Checkout Component*/
 .step-circle {
     width: 40px;
     height: 40px;
@@ -478,9 +450,7 @@ body {
     border-color: #0041c8;
 }
 
-/* ========================================
-   Input Focus States (Global)
-   ======================================== */
+/* Input Focus States (Global*/
 input:focus,
 select:focus,
 textarea:focus {
@@ -489,9 +459,7 @@ textarea:focus {
     box-shadow: 0 0 0 2px rgba(0, 65, 200, 0.1);
 }
 
-/* ========================================
-   Product Grid & Cards
-   ======================================== */
+/* Product Grid & Card*/
 .product-card {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -501,9 +469,7 @@ textarea:focus {
     box-shadow: 0 12px 24px rgba(0, 65, 200, 0.12);
 }
 
-/* ========================================
-   Hero & Animations
-   ======================================== */
+/* Hero & Animation*/
 .hero-gradient {
     background: linear-gradient(135deg, #f7f9fb 0%, #e6e8ea 100%);
 }
@@ -537,9 +503,7 @@ textarea:focus {
     border-color: #0041c8;
 }
 
-/* ========================================
-   Responsive
-   ======================================== */
+/* Responsiv*/
 @media (max-width: 768px) {
     .site-nav .nav-links {
         display: none;
@@ -577,9 +541,7 @@ textarea:focus {
     }
 }
 
-/* ========================================
-   Utility Classes
-   ======================================== */
+/* Utility Classe*/
 .text-center {
     text-align: center;
 }
