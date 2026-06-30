@@ -1,0 +1,647 @@
+/* ========================================
+   NeoStore Design System
+   ======================================== */
+
+/* Import tokens */
+@import url('tokens.css');
+
+/* ========================================
+   Global Reset & Base
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--color-surface, #f7f9fb);
+    color: var(--color-on-surface, #191c1e);
+    min-height: 100vh;
+}
+
+/* ========================================
+   Material Icons (Global)
+   ======================================== */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c3c5d9;
+    border-radius: 10px;
+}
+
+/* ========================================
+   Navigation
+   ======================================== */
+.site-nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 50;
+    background: var(--color-surface-container-lowest, #ffffff);
+    border-bottom: 1px solid var(--color-outline, #e0e3e5);
+}
+
+.site-nav-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 64px;
+}
+
+.site-nav .logo {
+    font-family: 'Geist', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--color-primary, #0041c8);
+    text-decoration: none;
+}
+
+.site-nav .logo span {
+    color: var(--color-primary, #0041c8);
+}
+
+.site-nav .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.site-nav .nav-links a {
+    color: var(--color-on-surface-variant, #434656);
+    text-decoration: none;
+    transition: color 0.2s;
+    padding: 4px 0;
+}
+
+.site-nav .nav-links a:hover {
+    color: var(--color-primary, #0041c8);
+}
+
+.site-nav .nav-links a.active {
+    color: var(--color-primary, #0041c8);
+    border-bottom: 2px solid var(--color-primary, #0041c8);
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--color-primary, #0041c8);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-container, #0055ff);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--color-on-surface, #191c1e);
+    border: 1px solid var(--color-outline, #e0e3e5);
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: var(--color-surface-container-low, #f2f4f6);
+}
+
+.btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--color-error-container, #ffdad6);
+    color: var(--color-on-error-container, #93000a);
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background: var(--color-error, #ba1a1a);
+    color: white;
+}
+
+/* ========================================
+   Cards
+   ======================================== */
+.card {
+    background: var(--color-surface-container-lowest, #ffffff);
+    border: 1px solid var(--color-outline, #e0e3e5);
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.card:hover {
+    border-color: var(--color-primary, #0041c8);
+    box-shadow: 0 4px 12px rgba(0, 65, 200, 0.08);
+}
+
+/* Admin Cards */
+.admin-card {
+    background: #ffffff;
+    border: 1px solid #e0e3e5;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.admin-card:hover {
+    border-color: #0041c8;
+    box-shadow: 0 4px 12px rgba(0, 65, 200, 0.08);
+}
+
+/* ========================================
+   Inputs
+   ======================================== */
+.input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px solid var(--color-outline, #e0e3e5);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--color-surface-container-low, #f2f4f6);
+    transition: all 0.2s;
+}
+
+.input:focus {
+    outline: none;
+    border-color: var(--color-primary, #0041c8);
+    box-shadow: 0 0 0 3px rgba(0, 65, 200, 0.1);
+    background: white;
+}
+
+/* ========================================
+   Badges
+   ======================================== */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.badge-info {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.badge-neutral {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* ========================================
+   Status Badges (Order/Admin)
+   ======================================== */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.delivered {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.paid {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.processing {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.shipped {
+    background: #d6d8db;
+    color: #383d41;
+}
+
+.status-badge.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.admin {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.support {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.customer {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* ========================================
+   Toast Notifications
+   ======================================== */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+}
+
+.toast {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease;
+}
+
+.toast-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.toast-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.toast-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ========================================
+   Admin Components
+   ======================================== */
+.nav-item {
+    padding: 10px 16px;
+    margin: 4px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #565e74;
+}
+
+.nav-item:hover {
+    background: #f2f4f6;
+    color: #191c1e;
+}
+
+.nav-item.active {
+    background: #dae2fd;
+    color: #0041c8;
+    font-weight: 600;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #191c1e;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #434656;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.progress-bar {
+    height: 6px;
+    border-radius: 10px;
+    background: #e0e3e5;
+    overflow: hidden;
+}
+
+.progress-bar .fill {
+    height: 100%;
+    border-radius: 10px;
+    background: #0041c8;
+    transition: width 0.6s ease;
+}
+
+/* ========================================
+   Cart Components
+   ======================================== */
+.cart-item {
+    transition: all 0.3s ease;
+}
+
+.cart-item:hover {
+    border-color: #0041c8;
+}
+
+/* ========================================
+   Checkout Components
+   ======================================== */
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.step-active {
+    background: #0041c8;
+    color: white;
+    border: 2px solid #0041c8;
+}
+
+.step-complete {
+    background: #dce1ff;
+    color: #0041c8;
+    border: 2px solid #0041c8;
+}
+
+.step-inactive {
+    background: #f2f4f6;
+    color: #434656;
+    border: 2px solid #e0e3e5;
+}
+
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e0e3e5;
+}
+
+.step-line.active {
+    background: #0041c8;
+}
+
+.checkout-card {
+    transition: all 0.3s ease;
+}
+
+.checkout-card:hover {
+    border-color: #0041c8;
+}
+
+/* ========================================
+   Input Focus States (Global)
+   ======================================== */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #0041c8 !important;
+    box-shadow: 0 0 0 2px rgba(0, 65, 200, 0.1);
+}
+
+/* ========================================
+   Product Grid & Cards
+   ======================================== */
+.product-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 65, 200, 0.12);
+}
+
+/* ========================================
+   Hero & Animations
+   ======================================== */
+.hero-gradient {
+    background: linear-gradient(135deg, #f7f9fb 0%, #e6e8ea 100%);
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.category-tile {
+    transition: all 0.3s ease;
+}
+
+.category-tile:hover {
+    transform: scale(1.05);
+    border-color: #0041c8;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+@media (max-width: 768px) {
+    .site-nav .nav-links {
+        display: none;
+    }
+    
+    .site-nav .mobile-menu {
+        display: flex;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .step-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .site-nav-inner {
+        padding: 0 12px;
+    }
+    
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+    
+    .card {
+        padding: 12px;
+    }
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.gap-4 {
+    gap: 16px;
+}
+
+.mt-4 {
+    margin-top: 16px;
+}
+
+.mb-4 {
+    margin-bottom: 16px;
+}
+
+.p-4 {
+    padding: 16px;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .md\\:block {
+        display: block;
+    }
+    .md\\:flex {
+        display: flex;
+    }
+    .md\\:hidden {
+        display: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .lg\\:block {
+        display: block;
+    }
+    .lg\\:flex {
+        display: flex;
+    }
+    .lg\\:hidden {
+        display: none;
+    }
+}

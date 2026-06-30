@@ -74,7 +74,7 @@ async function api(path, { method = 'GET', body, headers = {} } = {}) {
     }
 }
 
-// Cart API functions
+
 const Cart = {
     async get() {
         return await api('/cart');
@@ -113,7 +113,7 @@ const Cart = {
     }
 };
 
-// Products API functions
+
 const Products = {
     async getAll(params = {}) {
         const qs = new URLSearchParams(params).toString();
@@ -129,7 +129,6 @@ const Products = {
     }
 };
 
-// Orders API functions
 const Orders = {
     async getAll() {
         return await api('/orders');
@@ -153,7 +152,6 @@ const Orders = {
     }
 };
 
-// Admin API functions
 const Admin = {
     async getCustomers() {
         return await api('/admin/customers');
@@ -186,7 +184,6 @@ const Admin = {
     }
 };
 
-// Utility functions
 function money(num) {
     return '$' + Number(num).toFixed(2);
 }
@@ -221,7 +218,6 @@ function toast(msg, type = 'success') {
     }, 4000);
 }
 
-// Navigation render
 function renderNav() {
     const navEl = document.getElementById('site-nav');
     if (!navEl) return;
@@ -230,45 +226,47 @@ function renderNav() {
     const loggedIn = Auth.isLoggedIn();
     const isStaff = user && (user.role === 'admin' || user.role === 'support');
 
-    let navHTML = `
-        <div class="max-w-7xl mx-auto flex items-center justify-between px-6 h-16">
-            <a href="/index.html" class="font-['Geist'] font-bold text-xl text-[#0041c8]">NeoStore</a>
-            <div class="hidden md:flex items-center gap-6 text-sm font-medium">
-                <a href="/index.html" class="text-[#0041c8] border-b-2 border-[#0041c8] pb-1">Shop</a>
-                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Categories</a>
-                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Deals</a>
-                <a href="#" class="text-[#434656] hover:text-[#0041c8] transition-colors">Support</a>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden lg:flex items-center bg-[#f2f4f6] rounded-full px-4 py-1.5 border border-[#e0e3e5]">
-                    <span class="material-symbols-outlined text-[#434656] text-sm">search</span>
-                    <input id="search-input" class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="Search products..."/>
+    let html = `
+        <nav class="site-nav">
+            <div class="site-nav-inner">
+                <a href="/index.html" class="logo">Neo<span>Store</span></a>
+                <div class="nav-links">
+                    <a href="/index.html" class="${window.location.pathname === '/' || window.location.pathname === '/index.html' ? 'active' : ''}">Shop</a>
+                    <a href="#" class="${window.location.pathname === '/categories' ? 'active' : ''}">Categories</a>
+                    <a href="#" class="${window.location.pathname === '/deals' ? 'active' : ''}">Deals</a>
+                    <a href="#" class="${window.location.pathname === '/support' ? 'active' : ''}">Support</a>
                 </div>
-                <button class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors relative">
-                    <span class="material-symbols-outlined text-[#434656]">favorite</span>
-                </button>
-                <a href="/cart.html" class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors relative">
-                    <span class="material-symbols-outlined text-[#434656]">shopping_bag</span>
-                    <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-[#0041c8] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">0</span>
-                </a>
-                ${loggedIn ? `
-                    <div class="flex items-center gap-3">
-                        <a href="/orders.html" class="text-sm text-[#434656] hover:text-[#0041c8] transition-colors">Orders</a>
-                        <a href="/profile.html" class="text-sm text-[#434656] hover:text-[#0041c8] transition-colors">Profile</a>
-                        ${isStaff ? `<a href="/admin/dashboard.html" class="text-xs bg-[#0041c8] text-white px-3 py-1 rounded-full hover:bg-[#0055ff] transition-colors">ADMIN</a>` : ''}
-                        <button onclick="Auth.logout()" class="text-sm text-[#ba1a1a] hover:text-[#93000a] transition-colors">Logout</button>
+                <div class="flex items-center gap-4">
+                    <div class="hidden lg:flex items-center bg-[#f2f4f6] rounded-full px-4 py-1.5 border border-[#e0e3e5]">
+                        <span class="material-symbols-outlined text-[#434656] text-sm">search</span>
+                        <input id="search-input" class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="Search products..."/>
                     </div>
-                ` : `
-                    <div class="flex items-center gap-2">
-                        <a href="/login.html" class="px-4 py-1.5 bg-[#0041c8] text-white rounded-lg text-sm font-medium hover:bg-[#0055ff] transition-colors">Sign In</a>
-                        <a href="/register.html" class="px-4 py-1.5 border border-[#e0e3e5] rounded-lg text-sm font-medium hover:bg-[#f2f4f6] transition-colors">Register</a>
-                    </div>
-                `}
+                    <button class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors">
+                        <span class="material-symbols-outlined text-[#434656]">favorite</span>
+                    </button>
+                    <a href="/cart.html" class="p-2 hover:bg-[#f2f4f6] rounded-full transition-colors relative">
+                        <span class="material-symbols-outlined text-[#434656]">shopping_bag</span>
+                        <span id="cart-count" class="absolute -top-0.5 -right-0.5 bg-[#0041c8] text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                    </a>
+                    ${loggedIn ? `
+                        <div class="flex items-center gap-3">
+                            <a href="/orders.html" class="text-sm text-[#434656] hover:text-[#0041c8] transition-colors">Orders</a>
+                            <a href="/profile.html" class="text-sm text-[#434656] hover:text-[#0041c8] transition-colors">Profile</a>
+                            ${isStaff ? `<a href="/admin/dashboard.html" class="text-xs bg-[#0041c8] text-white px-3 py-1 rounded-full hover:bg-[#0055ff] transition-colors">ADMIN</a>` : ''}
+                            <button onclick="Auth.logout()" class="text-sm text-[#ba1a1a] hover:text-[#93000a] transition-colors">Logout</button>
+                        </div>
+                    ` : `
+                        <div class="flex items-center gap-2">
+                            <a href="/login.html" class="px-4 py-1.5 bg-[#0041c8] text-white rounded-lg text-sm font-medium hover:bg-[#0055ff] transition-colors">Sign In</a>
+                            <a href="/register.html" class="px-4 py-1.5 border border-[#e0e3e5] rounded-lg text-sm font-medium hover:bg-[#f2f4f6] transition-colors">Register</a>
+                        </div>
+                    `}
+                </div>
             </div>
-        </div>
+        </nav>
     `;
 
-    navEl.innerHTML = navHTML;
+    navEl.innerHTML = html;
 
     // Add search functionality
     const searchInput = document.getElementById('search-input');
@@ -286,7 +284,7 @@ function renderNav() {
     }
 }
 
-// Expose functions globally
+
 window.Auth = Auth;
 window.api = api;
 window.Cart = Cart;
@@ -297,7 +295,6 @@ window.money = money;
 window.toast = toast;
 window.renderNav = renderNav;
 
-// Cart count updater
 window.updateCartCount = async function() {
     if (!Auth.isLoggedIn()) return;
     try {
@@ -312,7 +309,6 @@ window.updateCartCount = async function() {
     }
 };
 
-// Auto-update cart count on page load
 document.addEventListener('DOMContentLoaded', () => {
     if (Auth.isLoggedIn()) {
         window.updateCartCount();

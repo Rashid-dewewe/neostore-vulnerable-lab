@@ -2,62 +2,18 @@
 <html class="light" lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Checkout | NeoStore</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
     <link href="/css/tokens.css" rel="stylesheet"/>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-        .step-active {
-            background: #0041c8;
-            color: white;
-            border: 2px solid #0041c8;
-        }
-        .step-complete {
-            background: #dce1ff;
-            color: #0041c8;
-            border: 2px solid #0041c8;
-        }
-        .step-inactive {
-            background: #f2f4f6;
-            color: #434656;
-            border: 2px solid #e0e3e5;
-        }
-        .step-line {
-            flex: 1;
-            height: 2px;
-            background: #e0e3e5;
-        }
-        .step-line.active {
-            background: #0041c8;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #0041c8 !important;
-            box-shadow: 0 0 0 2px rgba(0,65,200,0.1);
-        }
-        .checkout-card {
-            transition: all 0.3s ease;
-        }
-        .checkout-card:hover {
-            border-color: #0041c8;
-        }
-    </style>
+    <link href="/css/main.css" rel="stylesheet"/>
 </head>
 <body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
     <nav id="site-nav" class="fixed top-0 w-full z-50 bg-white border-b border-[#e0e3e5]">

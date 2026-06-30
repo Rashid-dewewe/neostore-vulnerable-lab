@@ -2,71 +2,18 @@
 <html class="light" lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Admin Central | NeoStore</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #c3c5d9; border-radius: 10px; }
-        .admin-card {
-            background: #ffffff;
-            border: 1px solid #e0e3e5;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        .admin-card:hover {
-            border-color: #0041c8;
-            box-shadow: 0 4px 12px rgba(0,65,200,0.08);
-        }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .status-badge.delivered { background: #d4edda; color: #155724; }
-        .status-badge.paid { background: #d1ecf1; color: #0c5460; }
-        .status-badge.processing { background: #cce5ff; color: #004085; }
-        .status-badge.pending { background: #fff3cd; color: #856404; }
-        .status-badge.shipped { background: #d6d8db; color: #383d41; }
-        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
-        .nav-item {
-            padding: 10px 16px;
-            margin: 4px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #565e74;
-        }
-        .nav-item:hover { background: #f2f4f6; color: #191c1e; }
-        .nav-item.active { background: #dae2fd; color: #0041c8; font-weight: 600; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .stat-value { font-size: 28px; font-weight: 700; color: #191c1e; }
-        .stat-label { font-size: 12px; color: #434656; text-transform: uppercase; letter-spacing: 0.5px; }
-        .progress-bar {
-            height: 6px;
-            border-radius: 10px;
-            background: #e0e3e5;
-            overflow: hidden;
-        }
-        .progress-bar .fill {
-            height: 100%;
-            border-radius: 10px;
-            background: #0041c8;
-            transition: width 0.6s ease;
-        }
-    </style>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <link href="/css/tokens.css" rel="stylesheet"/>
+    <link href="/css/main.css" rel="stylesheet"/>
 </head>
 <body class="bg-[#f7f9fb] font-['Inter'] text-[#191c1e]">
     <!-- Sidebar -->
